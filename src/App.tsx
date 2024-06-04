@@ -1,10 +1,15 @@
 import React from 'react';
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+import {AnalyticsPage} from "./pages/analytics/page";
 
 function App() {
   return (
-    <div className="text-blue-500 text-2xl">
-      ...
-    </div>
+      <BrowserRouter>
+          <Routes>
+              <Route path="/" element={<Navigate to="/analytics" replace />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+          </Routes>
+      </BrowserRouter>
   );
 }
 

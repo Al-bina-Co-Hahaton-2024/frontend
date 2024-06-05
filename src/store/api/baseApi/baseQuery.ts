@@ -5,6 +5,7 @@ import {
     FetchBaseQueryMeta,
     fetchBaseQuery,
 } from '@reduxjs/toolkit/query';
+import Cookies from 'js-cookie';
 
 export const baseQuery: BaseQueryFn<
     string | FetchArgs,
@@ -13,5 +14,12 @@ export const baseQuery: BaseQueryFn<
     NonNullable<unknown>,
     FetchBaseQueryMeta
 > = fetchBaseQuery({
-    baseUrl: 'https://base-api-there'
+    baseUrl: 'https://api-hack.bigtows.org',
+    prepareHeaders: (headers) => {
+        const token = Cookies.get('accessToken');
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+        }
+        return headers;
+    },
 });

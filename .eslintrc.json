@@ -1,0 +1,14 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-console": "off",
+    "no-unused-vars": "off",
+    "no-undef": "off",
+    "no-empty": "off"
+  }
+}

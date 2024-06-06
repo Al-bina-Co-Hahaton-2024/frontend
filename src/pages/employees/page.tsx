@@ -19,6 +19,7 @@ import {useForm} from "react-hook-form";
 
 export const EmployeesPage = () => {
 
+    const [editablePerson, setEditablePerson] = useState<any>(null)
     const [edit, setEdit] = useState(false)
     //states
     const [ids, setIds] = useState<any>(null)
@@ -54,8 +55,6 @@ export const EmployeesPage = () => {
         setPage(selected);
     };
 
-    console.log(doctors)
-
     return(
         <div className={'my-[38px] mx-auto flex flex-col items-center w-full'}>
             <div className={'flex flex-col w-[1437px] '}>
@@ -76,7 +75,7 @@ export const EmployeesPage = () => {
                                     <div
                                         onClick={() => {
                                             setEdit(true)
-                                            console.log(el)
+                                            setEditablePerson(el)
                                         }}
                                         key={el.id}
                                         className="bg-white group hover:bg-[#00A3FF] rounded-[20px] shadow-lg p-[15px] flex justify-between items-center cursor-pointer">

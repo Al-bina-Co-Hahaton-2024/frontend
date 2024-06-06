@@ -3,6 +3,8 @@ import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {AnalyticsPage} from "./pages/analytics/page";
 import {EmployeesPage} from "./pages/employees/page";
 import {AuthorizationPage} from "./pages/authorization/page";
+import {SideBar} from "./components/side-bar";
+import {AdminLayout} from "./layout/admin-layout";
 
 function App() {
   return (
@@ -10,8 +12,8 @@ function App() {
           <Routes>
               {/*<Route path="/" element={<Navigate to="/analytics" replace />} />*/}
               <Route path="/" element={<AuthorizationPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/employees" element={<EmployeesPage />} />
+              <Route path="/analytics" element={<AdminLayout><AnalyticsPage /></AdminLayout>} />
+              <Route path="/employees" element={<AdminLayout><EmployeesPage /></AdminLayout>} />
           </Routes>
       </BrowserRouter>
   );

@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'Source Sans 3';
+    src: url('./font/SourceSans3-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Source Sans 3', sans-serif;
+}
+
+.bg-custom-gradient {
+    background: linear-gradient(88.98deg, rgba(52, 147, 223, 0.7) 0%, rgba(205, 102, 214, 0.7) 50%, rgba(255, 184, 0, 0.7) 100%)
+}
+
+.custom-sidebar-shadow {
+    box-shadow: 0px 4px 20px 0px #00000014;
+}

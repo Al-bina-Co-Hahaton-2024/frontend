@@ -14,8 +14,7 @@ import {EmployeeSearch} from "./components/search";
 import pencil_white from '../../assets/pencil_white.svg'
 import cross_line from '../../assets/cross_line.svg'
 import {useForm} from "react-hook-form";
-
-// /users/{id}
+import {EditEmployeeForm} from "./components/edit-employee-form";
 
 export const EmployeesPage = () => {
 
@@ -26,14 +25,12 @@ export const EmployeesPage = () => {
     const [page, setPage] = useState(0)
     const [doctors, setDoctors] = useState<any>([])
     // API actions
-    const {data: doctorsData, isSuccess, isError} = useGetDoctorsQuery({page: page, userIds: ids})
+    const {data: doctorsData, isSuccess,refetch, isError} = useGetDoctorsQuery({page: page, userIds: ids})
     const [getFioTrigger] = useGetFioDocsByIdMutation()
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm();
-    const onSubmit = data => console.log(data);
-
     useEffect(() => {
-        if (isSuccess) {
+        if (isSuccess && doctorsData) {
+            console.log('hi')
             const ids = doctorsData.content.map((doc: IDoctor) => doc.id)
             getFioTrigger(ids)
                 .unwrap()
@@ -48,12 +45,19 @@ export const EmployeesPage = () => {
                     setDoctors(transformed)
                 })
         }
-    },[doctorsData, isSuccess])
+    },[doctorsData, isSuccess, editablePerson])
 
     const handlePageClick = (data) => {
         let selected = data.selected;
         setPage(selected);
     };
+
+    const onFormSubmit = () => {
+        setEditablePerson(null)
+        setEdit(false)
+
+
+    }
 
     return(
         <div className={'my-[38px] mx-auto flex flex-col items-center w-full'}>
@@ -137,128 +141,17 @@ export const EmployeesPage = () => {
                             <img src={pencil_white} alt={'edit'}/>
                             <span className={'text-white font-[700] text-[24px]'}>Информация о сотруднике</span>
                         </div>
-                        <div onClick={() => setEdit(false)} className={'cursor-pointer'}>
+                        <div onClick={() => {
+                            setEdit(false);
+                            setEditablePerson(null)
+                        }} className={'cursor-pointer'}>
                             <img src={cross_line} alt={'exit'}/>
                         </div>
                     </div>
                 </div>
-
-                <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6  max-w-4xl overflow-y-scroll">
-                    <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="font-[400] text-[14px]  opacity-50">Фамилия <span
-                                className="text-red-500">*</span></label>
-                            <input placeholder={'Иванов'} {...register("lastName", {required: true})}
-                                   className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                            {errors.lastName && <span className="text-red-500 text-xs">Это поле обязательно</span>}
-                        </div>
-                        <div>
-                            <label className="font-[400] text-[14px]  opacity-50">Отчество</label>
-                            <input placeholder={'Иванович'} {...register("middleName")}
-                                   className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                        </div>
-                        <div>
-                            <label className="font-[400] text-[14px]  opacity-50">Имя <span
-                                className="text-red-500">*</span></label>
-                            <input placeholder={'Иван'} {...register("firstName", {required: true})}
-                                   className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                            {errors.firstName && <span className="text-red-500 text-xs">Это поле обязательно</span>}
-                        </div>
-
-                        <div className={'flex gap-5'}>
-                            <div>
-                                <label className="font-[400] text-[14px]  opacity-50">Дата выхода <span
-                                    className="text-red-500">*</span></label>
-                                <input {...register("dateOfExit", {required: true})} type="date"
-                                       className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                                {errors.dateOfExit &&
-                                    <span className="text-red-500 text-xs">Это поле обязательно</span>}
-                            </div>
-                            <div>
-                                <label className="font-[400] text-[14px]  opacity-50">Ставка <span
-                                    className="text-red-500">*</span></label>
-                                <input {...register("rate", {required: true})} type="number" step="0.01"
-                                       className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                                {errors.rate && <span className="text-red-500 text-xs">Это поле обязательно</span>}
-                            </div>
-                        </div>
-
-                        <div className={'flex gap-5'}>
-                            <div>
-                                <label className="font-[400] text-[14px]  opacity-50">Начало работы <span
-                                    className="text-red-500">*</span></label>
-                                <input {...register("startTime", {required: true})} type="time"
-                                       className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                                {errors.startTime && <span className="text-red-500 text-xs">Это поле обязательно</span>}
-                            </div>
-                            <div>
-                                <label className="font-[400] text-[14px] opacity-50">Время работы <span
-                                    className="text-red-500">*</span></label>
-                                <select {...register("workTime", {required: true})}
-                                        className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    <option value="" disabled selected>Выберите время работы</option>
-                                    <option value="4 ч.">4 ч.</option>
-                                    <option value="5 ч.">5 ч.</option>
-                                    <option value="6 ч.">6 ч.</option>
-                                    <option value="7 ч.">7 ч.</option>
-                                    <option value="8 ч.">8 ч.</option>
-                                </select>
-                                {errors.workTime && <span className="text-red-500 text-xs">Это поле обязательно</span>}
-                            </div>
-                        </div>
-
-
-                        <div>
-                            <label className="font-[400] text-[14px]  opacity-50">Предпочтения в рабочих
-                                днях</label>
-                            <select {...register("workPreference")}
-                                    className="block w-full  px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                <option value="">Выбрать</option>
-                                <option value="5/2">5/2</option>
-                                <option value="2/2">2/2</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="mt-6 grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="font-[400] text-[14px]  opacity-50">Модальность <span
-                                className="text-red-500">*</span></label>
-                            <div className="space-y-2 border rounded-lg p-4">
-                                {["РГ", "МРТ", "КТ", "ММГ"].map((modality, index) => (
-                                    <div key={index}>
-                                        <input {...register("modality")} type="checkbox" value={modality}
-                                               className="mr-2 leading-tight"/>
-                                        <span className="text-gray-700">{modality}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <label className="font-[400] text-[14px]  opacity-50">Доп. модальности <span
-                                className="text-red-500">*</span></label>
-                            <div className="space-y-2 border rounded-lg p-4">
-                                {["РГ", "МРТ", "КТ", "ММГ", "ПЭТ/КТ", "Денситометрия", "НДКТ", "РХ", "ФЛГ"].map((modality, index) => (
-                                    <div key={index}>
-                                        <input {...register("additionalModality")} type="checkbox" value={modality}
-                                               className="mr-2 leading-tight"/>
-                                        <span className="text-gray-700">{modality}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mt-6 flex justify-center items-center">
-                        <button type="submit"
-                                className="bg-[#00A3FF] flex items-center justify-center font-[700] text-[18px] text-white px-[25px] py-[24px] rounded-[40px] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">Отправить
-                            изменения на согласование
-                        </button>
-                        {/*<button type="button"*/}
-                        {/*        className="bg-red-500 text-white p[]rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">Удалить*/}
-                        {/*    сотрудника из системы*/}
-                        {/*</button>*/}
-                    </div>
-                </form>
-
+                {
+                    editablePerson && <EditEmployeeForm person={editablePerson} onFormSubmit={onFormSubmit} />
+                }
             </div>
         </div>
     )

@@ -10,7 +10,8 @@ export const doctorsApi = baseApi.injectEndpoints({
                 return {
                     url: `/medical/doctors?${userIds ? `userIds=${userIds.join(',')}&` : ''}page=${page}&size=8`
                 }
-            }
+            },
+            providesTags: ['doctor']
         }),
         getFioDocsById: builder.mutation({
             query: (body) => {
@@ -19,7 +20,7 @@ export const doctorsApi = baseApi.injectEndpoints({
                     method: 'POST',
                     body
                 }
-            }
+            },
         }),
         getIdByFioElastic: builder.mutation({
             query: (body) => {
@@ -29,8 +30,36 @@ export const doctorsApi = baseApi.injectEndpoints({
                     body
                 }
             }
+        }),
+        patchDoctorById: builder.mutation({
+            query: (data) => {
+                const {body, id} = data
+                return {
+                    url: `/user/users/${id}`,
+                    method: 'PATCH',
+                    body
+                }
+            },
+            invalidatesTags: ['doctor']
+        }),
+        toApproveDoctorChanges: builder.mutation({
+            query: (body) => {
+                return {
+                    url: '/approve/doctor-changes',
+                    method: 'PUT',
+                    body
+                }
+            }
         })
     })
 })
 
-export const {useGetDoctorsQuery, useLazyGetDoctorsQuery, useGetFioDocsByIdMutation, useGetIdByFioElasticMutation} = doctorsApi
+export const {
+    useGetDoctorsQuery
+    , useLazyGetDoctorsQuery
+    , useGetFioDocsByIdMutation
+    , useGetIdByFioElasticMutation
+    , usePatchDoctorByIdMutation,
+    useToApproveDoctorChangesMutation
+}
+    = doctorsApi

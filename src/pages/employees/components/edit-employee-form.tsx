@@ -48,7 +48,7 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
             setValue("dateOfExit", person.startContract);
             setValue("rate", person.rate);
             setValue("startTime", person.startContract);
-            setValue("workTime", `${person.hours} ч.`);
+            setValue("workTime", `${person.hours}`);
             setValue("workPreference", person?.workDays?.map(day => ({ value: day, label: daysOfWeek.find(d => d.value === day)?.label })));
             setValue("modality", medicalImagingModalities[person.modality]);
             person.optionalModality.forEach((modality) => {
@@ -152,15 +152,15 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
                         <select {...register("workTime",)}
                                 className="block w-full bg-[#E6EDF0] px-4 py-2 mt-2 border rounded-[20px] focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                             <option value="" disabled>Выберите время работы</option>
-                            <option value="4 ч.">4 ч.</option>
-                            <option value="5 ч.">5 ч.</option>
-                            <option value="6 ч.">6 ч.</option>
-                            <option value="7 ч.">7 ч.</option>
-                            <option value="8 ч.">8 ч.</option>
-                            <option value="9 ч.">9 ч.</option>
-                            <option value="10 ч.">10 ч.</option>
-                            <option value="11 ч.">11 ч.</option>
-                            <option value="12 ч.">12 ч.</option>
+                            <option value="4">4 ч.</option>
+                            <option value="5">5 ч.</option>
+                            <option value="6">6 ч.</option>
+                            <option value="7">7 ч.</option>
+                            <option value="8">8 ч.</option>
+                            <option value="9">9 ч.</option>
+                            <option value="10">10 ч.</option>
+                            <option value="11">11 ч.</option>
+                            <option value="12">12 ч.</option>
                         </select>
                         {errors.workTime && <span className="text-red-500 text-xs">Это поле обязательно</span>}
                     </div>

@@ -42,6 +42,13 @@ export const doctorsApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ['doctor']
         }),
+        getApprovedDoctorCard: builder.query({
+            query: (id) => {
+                return {
+                    url: `/approve/doctor-changes/?doctorId=${id}`
+                }
+            }
+        }),
         toApproveDoctorChanges: builder.mutation({
             query: (body) => {
                 return {
@@ -60,6 +67,8 @@ export const {
     , useGetFioDocsByIdMutation
     , useGetIdByFioElasticMutation
     , usePatchDoctorByIdMutation,
-    useToApproveDoctorChangesMutation
+    useToApproveDoctorChangesMutation,
+    useGetApprovedDoctorCardQuery,
+    useLazyGetApprovedDoctorCardQuery
 }
     = doctorsApi

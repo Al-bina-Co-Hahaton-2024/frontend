@@ -19,3 +19,13 @@ export const _MEDICAL_MODALITIES = {
     "FLG": "ФЛГ",
     "DENSITOMETER": "Денситометр"
 };
+
+export const _APPROVE_DICT = {
+    startContract: 'Дата выхода',
+    hours: 'Время работы',
+    modality: 'Модальность',
+    optionalModality: 'Доп. модальность',
+    rate: 'Ставка',
+    workDays: 'Рабочие дни',
+
+}

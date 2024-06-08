@@ -14,6 +14,8 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
     const [selectedModality, setSelectedModality] = useState(_MEDICAL_MODALITIES[person.modality] || '');
     const [getDoctorCard, {isSuccess, data}] = useLazyGetApprovedDoctorCardQuery();
 
+    const [intersections, setIntersections] = useState<any>()
+
     const modalities = ["РГ", "МРТ", "КТ", "ММГ", "Денситометр"];
     const additionalModalities = ["РГ", "МРТ", "КТ", "ММГ", "Денситометр", "ФЛГ"];
 
@@ -26,19 +28,32 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
         getDoctorCard(person.id)
             .unwrap()
             .then(res => {
-                setSelectedModality(_MEDICAL_MODALITIES[res.modality])
+                setSelectedModality(_MEDICAL_MODALITIES[res.modality === null ? person.modality : res.modality])
                 setValue("lastName", person.fullName.last);
                 setValue("middleName", person.fullName.middle);
                 setValue("firstName", person.fullName.first);
-                setValue("dateOfExit", res.startContract);
-                setValue("rate", res.rate);
-                setValue("startTime", res.startContract);
-                setValue("workTime", `${res.hours}`);
-                setValue("workPreference", res?.workDays?.map(day => ({ value: day, label: _DAYS_OF_WEEKS.find(d => d.value === day)?.label })));
-                setValue("modality", _MEDICAL_MODALITIES[res.modality]);
-                res.optionalModality?.forEach((modality) => {
+                setValue("dateOfExit", res.startContract === null ? person.startContract : res.startContract);
+                setValue("rate", res.rate === null ? person.rate : res.rate);
+                setValue("startTime", res.startContract === null ? person.startContract : res.startContract);
+                setValue("workTime", `${res.hours === null ? person.hours : res.hours }`);
+                setValue("workPreference", res?.workDays === null ? person?.workDays?.map(day => ({ value: day, label: _DAYS_OF_WEEKS.find(d => d.value === day)?.label })) : res?.workDays.map(day => ({ value: day, label: _DAYS_OF_WEEKS.find(d => d.value === day)?.label })));
+                setValue("modality", res.modality === null ? _MEDICAL_MODALITIES[person.modality] : _MEDICAL_MODALITIES[res.modality]);
+                res.optionalModality === null ? person.optionalModality?.forEach((modality) => {
+                    setValue(`additionalModality.${_MEDICAL_MODALITIES[modality]}`, true);
+                }) : res.optionalModality?.forEach((modality) => {
                     setValue(`additionalModality.${_MEDICAL_MODALITIES[modality]}`, true);
                 });
+
+                setIntersections({
+                    workDays: res?.workDays,
+                    hours: res?.hours,
+                    startContract: res?.startContract,
+                    modality: res?.modality,
+                    rate: res?.rate,
+                    optionalModality: res?.optionalModality,
+                    endContract: res?.endContract,
+                })
+
             })
             .catch(err => console.log(err))
     },[])
@@ -46,7 +61,7 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
     useEffect(() => {
 
         if (person && !data) {
-            console.log('THERE')
+
             setValue("lastName", person.fullName.last);
             setValue("middleName", person.fullName.middle);
             setValue("firstName", person.fullName.first);
@@ -59,6 +74,16 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
             person.optionalModality?.forEach((modality) => {
                 setValue(`additionalModality.${_MEDICAL_MODALITIES[modality]}`, true);
             });
+
+            setIntersections({
+                workDays: person?.workDays,
+                hours: person?.hours,
+                startContract: person?.startContract,
+                modality: person?.modality,
+                rate: person?.rate,
+                optionalModality: person?.optionalModality,
+                endContract: person?.endContract,
+            })
         }
 
     }, [person, setValue, isSuccess]);
@@ -88,20 +113,25 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
             }
         }
 
+        const opsModalityCheck = optModality.filter((el) => !intersections.optionalModality?.includes(el))
+        const workDaysCheck = data.workPreference !== null ? data.workPreference?.map((el) => el?.value).filter((el) => !intersections?.workDays?.includes(el)) : null
+
+        const resultObject = {
+            doctorId: person.id,
+            rate: data.rate === intersections['rate'] ? null : data.rate,
+            modality: convertedModality === intersections['modality'] ? null : convertedModality,
+            optionalModality: opsModalityCheck.length !== 0 ? optModality : null,
+            startContract: data.dateOfExit === intersections['startContract'] ? null : data.dateOfExit,
+            endContract: null,
+            hours: data.workTime == intersections['hours'] ? null : data.workTime,
+            workDays: workDaysCheck !== null && workDaysCheck?.length !== 0 && data.workPreference?.map((el) => el?.value) ? data.workPreference?.map((el) => el?.value) : null,
+        }
+
         editDoctor({
             body: firstObject,
             id: person.id,
         })
-        approveToManager({
-            doctorId: person.id,
-            rate: data.rate,
-            modality: convertedModality,
-            optionalModality: optModality,
-            startContract: data.dateOfExit,
-            endContract: null,
-            hours: data.workTime,
-            workDays: data.workPreference?.map((el) => el?.value) ? data.workPreference?.map((el) => el?.value) : null,
-        })
+        approveToManager(resultObject)
         .unwrap()
         .then(() => {
             onFormSubmit()

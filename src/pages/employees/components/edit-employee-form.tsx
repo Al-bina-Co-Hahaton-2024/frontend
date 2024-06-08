@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {usePatchDoctorByIdMutation, useToApproveDoctorChangesMutation} from "../../../store/api/doctors/doctorsApi";
+import {
+    useLazyGetApprovedDoctorCardQuery,
+    usePatchDoctorByIdMutation,
+    useToApproveDoctorChangesMutation
+} from "../../../store/api/doctors/doctorsApi";
 import {MultiSelect} from "react-multi-select-component";
 import {_DAYS_OF_WEEKS, _MEDICAL_MODALITIES} from "../../../constants/constants";
 
@@ -8,19 +12,41 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
     const [editDoctor] = usePatchDoctorByIdMutation()
     const [approveToManager] = useToApproveDoctorChangesMutation()
     const [selectedModality, setSelectedModality] = useState(_MEDICAL_MODALITIES[person.modality] || '');
+    const [getDoctorCard, {isSuccess, data}] = useLazyGetApprovedDoctorCardQuery();
 
     const modalities = ["РГ", "МРТ", "КТ", "ММГ", "Денситометр"];
     const additionalModalities = ["РГ", "МРТ", "КТ", "ММГ", "Денситометр", "ФЛГ"];
 
-    // Обработчик изменения модальности
     const handleModalityChange = (event) => {
         setSelectedModality(event.target.value);
     };
     const { register, handleSubmit,control, setValue, formState: { errors } } = useForm();
 
+    useEffect(() => {
+        getDoctorCard(person.id)
+            .unwrap()
+            .then(res => {
+                setSelectedModality(_MEDICAL_MODALITIES[res.modality])
+                setValue("lastName", person.fullName.last);
+                setValue("middleName", person.fullName.middle);
+                setValue("firstName", person.fullName.first);
+                setValue("dateOfExit", res.startContract);
+                setValue("rate", res.rate);
+                setValue("startTime", res.startContract);
+                setValue("workTime", `${res.hours}`);
+                setValue("workPreference", res?.workDays?.map(day => ({ value: day, label: _DAYS_OF_WEEKS.find(d => d.value === day)?.label })));
+                setValue("modality", _MEDICAL_MODALITIES[res.modality]);
+                res.optionalModality?.forEach((modality) => {
+                    setValue(`additionalModality.${_MEDICAL_MODALITIES[modality]}`, true);
+                });
+            })
+            .catch(err => console.log(err))
+    },[])
 
     useEffect(() => {
-        if (person) {
+
+        if (person && !data) {
+            console.log('THERE')
             setValue("lastName", person.fullName.last);
             setValue("middleName", person.fullName.middle);
             setValue("firstName", person.fullName.first);
@@ -34,7 +60,8 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
                 setValue(`additionalModality.${_MEDICAL_MODALITIES[modality]}`, true);
             });
         }
-    }, [person, setValue]);
+
+    }, [person, setValue, isSuccess]);
 
     const onSubmit = (data) => {
 

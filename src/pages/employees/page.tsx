@@ -12,6 +12,7 @@ import pencil_white from '../../assets/pencil_white.svg'
 import cross_line from '../../assets/cross_line.svg'
 import {EditEmployeeForm} from "./components/edit-employee-form";
 import {AdditionEmployeeForm} from "./components/addition-employee-form";
+import {_MEDICAL_MODALITIES} from "../../constants/constants";
 
 export const EmployeesPage = () => {
 
@@ -26,12 +27,11 @@ export const EmployeesPage = () => {
     const [page, setPage] = useState(0)
     const [doctors, setDoctors] = useState<any>([])
     // API actions
-    const {data: doctorsData, isSuccess, isError} = useGetDoctorsQuery({page: page, userIds: ids})
+    const {data: doctorsData, isSuccess, isError,refetch} = useGetDoctorsQuery({page: page, userIds: ids})
     const [getFioTrigger] = useGetFioDocsByIdMutation()
 
     useEffect(() => {
         if (isSuccess && doctorsData) {
-            console.log('hi')
             const ids = doctorsData.content.map((doc: IDoctor) => doc.id)
             getFioTrigger(ids)
                 .unwrap()
@@ -46,7 +46,7 @@ export const EmployeesPage = () => {
                     setDoctors(transformed)
                 })
         }
-    },[doctorsData, isSuccess, editablePerson])
+    },[doctorsData, isSuccess, editablePerson, addPerson])
 
     const handlePageClick = (data) => {
         let selected = data.selected;
@@ -60,7 +60,7 @@ export const EmployeesPage = () => {
     }
 
     return(
-        <div className={'my-[38px] mx-auto flex flex-col items-center w-full'}>
+        <div className={'mt-[38px] mx-auto flex flex-col items-center w-full'}>
             <div className={'flex flex-col w-[1437px] '}>
                 <div className={'flex justify-between'}>
 
@@ -79,20 +79,30 @@ export const EmployeesPage = () => {
                                 <div
                                     onClick={() => {
                                         setEdit(true)
-                                        setEditablePerson(el)
+                                        if(edit) {
+                                            setEdit(false)
+                                            setEditablePerson(null)
+                                            setTimeout(() => {
+                                                setEdit(true)
+                                                setEditablePerson(el)
+                                            },200)
+                                        }  else {
+                                            setEdit(true)
+                                            setEditablePerson(el)
+                                        }
                                     }}
                                     key={el.id}
-                                    className="bg-white group hover:bg-[#00A3FF] rounded-[20px] shadow-lg p-[15px] flex justify-between items-center cursor-pointer">
+                                    className="bg-white group hover:bg-[#00A3FF] rounded-[20px] shadow-lg p-[15px] flex justify-between items-center cursor-pointer max-h-[60px]">
                                     <div className="flex flex-col text-black w-[300px] group-hover:text-white">
                                         <span className="p-0 m-0 text-[18px] font-[600]">{el.fullName.last}</span>
                                         <span
                                             className="p-0 m-0 text-[18px] font-[600]">{el.fullName.first} {el.fullName.middle}</span>
                                     </div>
-                                    <div className="flex flex-col w-[84px]">
+                                    <div className="flex flex-col w-[129px]">
                                             <span
                                                 className="text-black opacity-50 text-[14px] font-[400] ite">Модальность</span>
                                         <span
-                                            className="text-black text-[18px] font-[400] group-hover:text-white">{el.modality}</span>
+                                            className="text-black text-[18px] font-[400] group-hover:text-white">{_MEDICAL_MODALITIES[el.modality]}</span>
                                     </div>
                                     <div className="flex flex-col w-[300px] group-hover:text-white">
                                             <span

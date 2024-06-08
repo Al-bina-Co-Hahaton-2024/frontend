@@ -9,7 +9,8 @@ export const usersApi = baseApi.injectEndpoints({
                     method: 'POST',
                     body
                 }
-            }
+            },
+            invalidatesTags: ['doctor']
         })
     })
 })

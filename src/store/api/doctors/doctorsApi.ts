@@ -8,7 +8,7 @@ export const doctorsApi = baseApi.injectEndpoints({
             query: (args) => {
                 const {page, userIds} = args
                 return {
-                    url: `/medical/doctors?${userIds ? `userIds=${userIds.join(',')}&` : ''}page=${page}&size=8&sort=id`
+                    url: `/medical/doctors?${userIds ? `userIds=${userIds.join(',')}&` : ''}page=${page}&size=11&sort=id`
                 }
             },
             providesTags: ['doctor']

@@ -1,28 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {usePatchDoctorByIdMutation, useToApproveDoctorChangesMutation} from "../../../store/api/doctors/doctorsApi";
-import Select from "react-select/base";
 import {MultiSelect} from "react-multi-select-component";
 import {_DAYS_OF_WEEKS, _MEDICAL_MODALITIES} from "../../../constants/constants";
-//
-// const daysOfWeek = [
-//     { value: 'MONDAY', label: 'Понедельник' },
-//     { value: 'TUESDAY', label: 'Вторник' },
-//     { value: 'WEDNESDAY', label: 'Среда' },
-//     { value: 'THURSDAY', label: 'Четверг' },
-//     { value: 'FRIDAY', label: 'Пятница' },
-//     { value: 'SATURDAY', label: 'Суббота' },
-//     { value: 'SUNDAY', label: 'Воскресенье' }
-// ];
-// // FLG, RG, MMG, KT, DENSITOMETER, MRT
-// const medicalImagingModalities = {
-//     "RG": "РГ",
-//     "MRT": "МРТ",
-//     "KT": "КТ",
-//     "MMG": "ММГ",
-//     "FLG": "ФЛГ",
-//     "DENSITOMETER": "Денситометр"
-// };
 
 export const EditEmployeeForm = ({ person, onFormSubmit }) => {
     const [editDoctor] = usePatchDoctorByIdMutation()
@@ -31,8 +11,6 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
 
     const modalities = ["РГ", "МРТ", "КТ", "ММГ", "Денситометр"];
     const additionalModalities = ["РГ", "МРТ", "КТ", "ММГ", "Денситометр", "ФЛГ"];
-
-
 
     // Обработчик изменения модальности
     const handleModalityChange = (event) => {
@@ -52,7 +30,7 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
             setValue("workTime", `${person.hours}`);
             setValue("workPreference", person?.workDays?.map(day => ({ value: day, label: _DAYS_OF_WEEKS.find(d => d.value === day)?.label })));
             setValue("modality", _MEDICAL_MODALITIES[person.modality]);
-            person.optionalModality.forEach((modality) => {
+            person.optionalModality?.forEach((modality) => {
                 setValue(`additionalModality.${_MEDICAL_MODALITIES[modality]}`, true);
             });
         }
@@ -60,7 +38,6 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
 
     const onSubmit = (data) => {
 
-        console.log(data)
         const firstObject = {
             fullName: {
                 first: data.firstName,
@@ -83,7 +60,6 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
                 }
             }
         }
-        console.log(optModality, convertedModality)
 
         editDoctor({
             body: firstObject,
@@ -193,12 +169,14 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
                     <div className="space-y-2 border rounded-lg p-4">
                         {modalities.map((modality, index) => (
                             <div key={index}>
-                                <input {...register("modality", {onChange: handleModalityChange})} type="radio"
+                                <input {...register("modality", { required: true })} type="radio"
+                                       onChange={handleModalityChange}
                                        value={modality}
                                        className="mr-2 leading-tight" checked={selectedModality === modality}/>
                                 <span className="text-gray-700">{modality}</span>
                             </div>
                         ))}
+                        {errors.modality && <span className="text-red-500 text-xs">Это поле обязательно</span>}
                     </div>
                 </div>
                 <div>

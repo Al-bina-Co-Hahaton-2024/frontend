@@ -1,5 +1,5 @@
 import {useForm} from "react-hook-form";
-import {_DAYS_OF_WEEKS, _MEDICAL_MODALITIES} from "../../../constants/constants";
+import { _MEDICAL_MODALITIES} from "../../../constants/constants";
 import React, {useState} from "react";
 import {useAddUserMutation} from "../../../store/api/usersApi/usersApi";
 import {useToApproveDoctorChangesMutation} from "../../../store/api/doctors/doctorsApi";
@@ -37,22 +37,7 @@ export const AdditionEmployeeForm = ({onFormSubmit}) => {
                 }
             }
         }
-        console.log(data)
 
-        // {
-        //     "doctorId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        //     "rate": 0,
-        //     "modality": "KT",
-        //     "optionalModality": [
-        //     "KT"
-        // ],
-        //     "startContract": "2024-06-08",
-        //     "endContract": "2024-06-08",
-        //     "hours": 0,
-        //     "workDays": [
-        //     "MONDAY"
-        // ]
-        // }
         const createdUser = {
             login: `user_${(Math.random() * 3) + 1}`,
             roles: [
@@ -79,9 +64,9 @@ export const AdditionEmployeeForm = ({onFormSubmit}) => {
                     hours: data.workTime,
                     workDays: data.workPreference?.map((el) => el?.value) ? data.workPreference?.map((el) => el?.value) : null,
                 })
+                    .unwrap()
+                    .then(() => onFormSubmit())
             })
-
-        // onFormSubmit()
     }
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 max-w-4xl overflow-y-scroll">
@@ -152,12 +137,14 @@ export const AdditionEmployeeForm = ({onFormSubmit}) => {
                     <div className="space-y-2 border rounded-lg p-4">
                         {modalities.map((modality, index) => (
                             <div key={index}>
-                                <input {...register("modality", {onChange: handleModalityChange})} type="radio"
+                                <input {...register("modality", {required: true})} type="radio"
+                                       onChange={handleModalityChange}
                                        value={modality}
                                        className="mr-2 leading-tight" checked={selectedModality === modality}/>
                                 <span className="text-gray-700">{modality}</span>
                             </div>
                         ))}
+                        {errors.modality && <span className="text-red-500 text-xs">Это поле обязательно</span>}
                     </div>
                 </div>
                 <div>

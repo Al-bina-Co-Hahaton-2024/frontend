@@ -1,9 +1,8 @@
 import {
     useGetDoctorsQuery,
     useGetFioDocsByIdMutation,
-    useGetIdByFioElasticMutation
 } from "../../store/api/doctors/doctorsApi";
-import {ChangeEvent, useEffect, useState} from "react";
+import { useEffect, useState} from "react";
 import {IDoctor} from "../../store/api/doctors/types";
 import add_employee from '../../assets/add_employee.svg'
 import pencil from '../../assets/pencil2.svg'
@@ -27,7 +26,7 @@ export const EmployeesPage = () => {
     const [page, setPage] = useState(0)
     const [doctors, setDoctors] = useState<any>([])
     // API actions
-    const {data: doctorsData, isSuccess,refetch, isError} = useGetDoctorsQuery({page: page, userIds: ids})
+    const {data: doctorsData, isSuccess, isError} = useGetDoctorsQuery({page: page, userIds: ids})
     const [getFioTrigger] = useGetFioDocsByIdMutation()
 
     useEffect(() => {
@@ -85,9 +84,9 @@ export const EmployeesPage = () => {
                                     key={el.id}
                                     className="bg-white group hover:bg-[#00A3FF] rounded-[20px] shadow-lg p-[15px] flex justify-between items-center cursor-pointer">
                                     <div className="flex flex-col text-black w-[300px] group-hover:text-white">
-                                        <span className="p-0 m-0 text-[18px] font-[600]">{el.fullName.middle}</span>
+                                        <span className="p-0 m-0 text-[18px] font-[600]">{el.fullName.last}</span>
                                         <span
-                                            className="p-0 m-0 text-[18px] font-[600]">{el.fullName.first} {el.fullName.last}</span>
+                                            className="p-0 m-0 text-[18px] font-[600]">{el.fullName.first} {el.fullName.middle}</span>
                                     </div>
                                     <div className="flex flex-col w-[84px]">
                                             <span
@@ -98,8 +97,7 @@ export const EmployeesPage = () => {
                                     <div className="flex flex-col w-[300px] group-hover:text-white">
                                             <span
                                                 className="text-black opacity-50 text-[14px] font-[400] ite">Доп.модальность</span>
-                                        <span
-                                            className="text-black text-[18px] font-[400] group-hover:text-white">{el?.optionalModality?.join(',')}</span>
+                                        <span className="text-black text-[18px] font-[400] group-hover:text-white">{el?.optionalModality?.join(',')}</span>
                                     </div>
                                     <div className="flex flex-col w-[42px] group-hover:text-white">
                                             <span

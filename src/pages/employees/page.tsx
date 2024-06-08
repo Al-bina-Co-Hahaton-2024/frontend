@@ -60,8 +60,8 @@ export const EmployeesPage = () => {
     }
 
     return(
-        <div className={'mt-[38px] mx-auto flex flex-col items-center w-full'}>
-            <div className={'flex flex-col w-[1437px] '}>
+        <div className={'mt-[38px] w-[1450px] flex flex-col items-center mx-auto'}>
+            <div className={'flex flex-col w-full '}>
                 <div className={'flex justify-between'}>
 
                     <EmployeeSearch setPage={setPage} setIds={setIds}/>

@@ -49,6 +49,22 @@ export const doctorsApi = baseApi.injectEndpoints({
                 }
             }
         }),
+        getDoctorChanges: builder.query({
+           query: (args) => {
+               const {page} = args
+               return {
+                   url: `/approve/doctor-changes?page=${page}&size=3&sort=id`
+               }
+           }
+        }),
+        getAbsenceDoctors: builder.query({
+           query: (args) => {
+               const {page} = args
+               return {
+                   url: `/approve/absence-schedulers?page=${page}&size=3&sort=id`
+               }
+           }
+        }),
         toApproveDoctorChanges: builder.mutation({
             query: (body) => {
                 return {
@@ -69,6 +85,8 @@ export const {
     , usePatchDoctorByIdMutation,
     useToApproveDoctorChangesMutation,
     useGetApprovedDoctorCardQuery,
-    useLazyGetApprovedDoctorCardQuery
+    useLazyGetApprovedDoctorCardQuery,
+    useGetDoctorChangesQuery,
+    useGetAbsenceDoctorsQuery
 }
     = doctorsApi

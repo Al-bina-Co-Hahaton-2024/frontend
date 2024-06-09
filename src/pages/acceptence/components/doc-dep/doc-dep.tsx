@@ -3,6 +3,10 @@ import clock from "../../../../assets/clock.svg";
 import eye from "../../../../assets/eye.svg";
 import arrow from "../../../../assets/light-arrow.svg";
 
+//
+// useGetDoctorsApplicationsQuery,
+//     useGetDoctorWorkSchedulersByIdsMutation,
+//     useGetAbsenceSchedulersByIdsMutation
 
 export const DocDep = () => {
 
@@ -13,7 +17,7 @@ export const DocDep = () => {
 
                 <div
                     className={'flex items-center gap-[15px] bg-[#00A3FF] rounded-[50px] pt-[5px] pr-[15px] pb-[5px] pl-[15px]'}>
-                    <span className={'font-[700] text-white text-[18px]'}>Кадровое отделение</span>
+                    <span className={'font-[700] text-white text-[18px]'}>Врачебное отделение</span>
                     <span className={'w-[20px] h-[20px] rounded-[50%] bg-white text-black text-center'}><div
                         className={'text-sm'}>12</div></span>
                 </div>
@@ -30,16 +34,16 @@ export const DocDep = () => {
                 <div
                     className={'bg-white min-w-[430px] p-[20px] mt-[10px] shrink-0 grow-0 flex flex-col rounded-[20px] shadow-lg'}>
 
-                    <div className={'flex items-center gap-[10px] text-[14px] font-[400] text-[#00000080]'}>
-                        <div className={'flex items-center gap-[5px]'}>
-                            <img className={'-translate-y-[1px]'} src={clock} alt={'clock'}/>
-                            <div>13:38</div>
-                        </div>
-                        <div>|</div>
-                        <div>22.06.2024</div>
-                        <div>|</div>
-                        <div>Кадровое отделение</div>
-                    </div>
+                    {/*<div className={'flex items-center gap-[10px] text-[14px] font-[400] text-[#00000080]'}>*/}
+                    {/*    <div className={'flex items-center gap-[5px]'}>*/}
+                    {/*        <img className={'-translate-y-[1px]'} src={clock} alt={'clock'}/>*/}
+                    {/*        <div>13:38</div>*/}
+                    {/*    </div>*/}
+                    {/*    <div>|</div>*/}
+                    {/*    <div>22.06.2024</div>*/}
+                    {/*    <div>|</div>*/}
+                    {/*    <div>Кадровое отделение</div>*/}
+                    {/*</div>*/}
 
                     <div className={' flex flex-col'}>
                         <div className={'text-[14px] font-[400] text-[#00000080]'}>Врач</div>

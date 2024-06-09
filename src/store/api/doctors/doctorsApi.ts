@@ -73,6 +73,27 @@ export const doctorsApi = baseApi.injectEndpoints({
                     body
                 }
             }
+        }),
+        getDoctorsApplications: builder.query({
+            query: (page) => `/approve/doctor-applications?page=${page}&size=10&sort=id`
+        }),
+        getDoctorWorkSchedulersByIds: builder.mutation({
+            query: (body) => {
+                return {
+                    url: '/approve/doctor-work-schedulers/find-by-ids',
+                    method: 'POST',
+                    body
+                }
+            }
+        }),
+        getAbsenceSchedulersByIds: builder.mutation({
+            query: (body) => {
+                return {
+                    url : '/approve/absence-schedulers/find-by-ids',
+                    method: 'POST',
+                    body
+                }
+            }
         })
     })
 })
@@ -87,6 +108,9 @@ export const {
     useGetApprovedDoctorCardQuery,
     useLazyGetApprovedDoctorCardQuery,
     useGetDoctorChangesQuery,
-    useGetAbsenceDoctorsQuery
+    useGetAbsenceDoctorsQuery,
+    useGetDoctorsApplicationsQuery,
+    useGetDoctorWorkSchedulersByIdsMutation,
+    useGetAbsenceSchedulersByIdsMutation
 }
     = doctorsApi

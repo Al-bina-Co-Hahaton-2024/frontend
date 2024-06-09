@@ -11,9 +11,9 @@ export const HrList: React.FC<any> = React.memo(({hrDocs}) => {
                     <motion.li
                         key={doctor.id}
                         className={'bg-white w-[430px] p-[20px] mt-[10px] shrink-0 grow-0 flex flex-col rounded-[20px] shadow-lg'}
-                        initial={{x: '120vw'}}
-                        animate={{x: 0}}
-                        exit={{x: '-120vw'}}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
                         transition={{duration: 0.5, ease: 'easeInOut'}}
                     >
                         <div className={' flex flex-col'}>

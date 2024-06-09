@@ -2,8 +2,11 @@ import {AnimatePresence, motion} from "framer-motion";
 import {_APPROVE_DICT} from "../../../../constants/constants";
 import eye from "../../../../assets/eye.svg";
 import React from "react";
+import {useAppDispatch} from "../../../../store/hooks/storeHooks";
+import {setApprovalCardState} from "../../../../store/reducers/serviceSlice";
 
 export const HrList: React.FC<any> = React.memo(({hrDocs}) => {
+    const dispatch = useAppDispatch()
     return (
         <div className={'flex items-center gap-[10px] overflow-hidden relative'}>
             <AnimatePresence mode={'wait'}>
@@ -36,6 +39,12 @@ export const HrList: React.FC<any> = React.memo(({hrDocs}) => {
                                 })}
                             </div>
                             <div
+                                onClick={() => {
+                                    dispatch(setApprovalCardState({
+                                        isOpen: true,
+                                        docId: doctor.doctorId
+                                    }))
+                                }}
                                 className={'flex items-center gap-[15px] bg-[#FFA842] hover:bg-[#FFA980] transition duration-500 ease-in-out rounded-[50px] py-[6px] px-[15px] max-w-[277px] mt-[10px] cursor-pointer'}>
                                 <img src={eye} alt={'eye'}/>
                                 <span className={'font-[80] text-white text-[18px]'}>Рассмотреть изменения</span>

@@ -1,51 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
-import { groups, items as initialItems, Item } from '../../mock/calendar_mock';
 
-export const AnalyticsPage: React.FC = () => {
-    const [items, setItems] = useState<Item[]>(initialItems);
+const groups = [
+    { id: 1, title: 'Group 1' },
+    { id: 2, title: 'Group 2' }
+];
 
-    const handleItemMove = (itemId: number, dragTime: number, newGroupOrder: number) => {
-        const group = groups[newGroupOrder];
-        const updatedItems = items.map(item =>
-            item.id === itemId
-                ? Object.assign({}, item, {
-                    start_time: dragTime,
-                    end_time: dragTime + (item.end_time - item.start_time),
-                    group: group.id
-                })
-                : item
-        )
-        setItems(updatedItems);
-    };
+const items = [
+    { id: 1, group: 1, title: 'Item 1', start_time: moment(), end_time: moment().add(1, 'hour') },
+    { id: 2, group: 2, title: 'Item 2', start_time: moment().add(-0.5, 'hour'), end_time: moment().add(0.5, 'hour') },
+    { id: 3, group: 1, title: 'Item 3', start_time: moment().add(2, 'hour'), end_time: moment().add(3, 'hour') }
+];
 
-
+export const AnalyticsPage = () => {
     return (
-        <div>
-
+        <div className={'w-full'}>
+            <Timeline
+                groups={groups}
+                items={items}
+                defaultTimeStart={moment().add(-12, 'hour')}
+                defaultTimeEnd={moment().add(12, 'hour')}
+                canMove={true}
+                canResize={"both"}
+                stackItems={true}
+                itemHeightRatio={0.75}
+            />
         </div>
-        // <Timeline
-        //     groups={groups}
-        //     items={items}
-        //     keys={{
-        //         groupIdKey: 'id',
-        //         groupTitleKey: 'title',
-        //         itemIdKey: 'id',
-        //         itemTitleKey: 'title',
-        //         itemGroupKey: 'group',
-        //         itemTimeStartKey: 'start_time',
-        //         itemTimeEndKey: 'end_time',
-        //         groupRightTitleKey: 'rightTitle',
-        //         itemDivTitleKey: 'title',
-        //     }}
-        //     canChangeGroup={false}
-        //     defaultTimeStart={moment().add(-12, 'hour')}
-        //     defaultTimeEnd={moment().add(12, 'hour')}
-        //     onItemMove={handleItemMove}
-        //     canMove={true}
-        //     canResize="both"
-        // />
     );
 };

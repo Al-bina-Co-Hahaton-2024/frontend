@@ -13,6 +13,15 @@ export const doctorsApi = baseApi.injectEndpoints({
             },
             providesTags: ['doctor']
         }),
+        getDoctorsByIds: builder.mutation({
+           query: (body) => {
+               return {
+                   url: '/medical/doctors/find-by-ids',
+                   method: 'POST',
+                   body
+               }
+           }
+        }),
         getFioDocsById: builder.mutation({
             query: (body) => {
                 return {
@@ -111,6 +120,7 @@ export const {
     useGetAbsenceDoctorsQuery,
     useGetDoctorsApplicationsQuery,
     useGetDoctorWorkSchedulersByIdsMutation,
-    useGetAbsenceSchedulersByIdsMutation
+    useGetAbsenceSchedulersByIdsMutation,
+    useGetDoctorsByIdsMutation,
 }
     = doctorsApi

@@ -75,7 +75,7 @@ export const doctorsApi = baseApi.injectEndpoints({
             }
         }),
         getDoctorsApplications: builder.query({
-            query: (page) => `/approve/doctor-applications?page=${page}&size=10&sort=id`
+            query: (page) => `/approve/doctor-applications?page=${page}&size=3&sort=id`
         }),
         getDoctorWorkSchedulersByIds: builder.mutation({
             query: (body) => {

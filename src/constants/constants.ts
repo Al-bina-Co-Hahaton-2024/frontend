@@ -29,3 +29,8 @@ export const _APPROVE_DICT = {
     workDays: 'Рабочие дни',
 
 }
+
+export const _GRAPH_DOCS = {
+    "worksDoc":'График работы',
+    "absenceDoc": 'График отгулов'
+}

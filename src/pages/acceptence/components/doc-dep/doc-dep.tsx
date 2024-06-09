@@ -2,6 +2,15 @@ import blue_search from "../../../../assets/blue_search.svg";
 import clock from "../../../../assets/clock.svg";
 import eye from "../../../../assets/eye.svg";
 import arrow from "../../../../assets/light-arrow.svg";
+import {
+    useGetAbsenceSchedulersByIdsMutation,
+    useGetDoctorsApplicationsQuery,
+    useGetDoctorWorkSchedulersByIdsMutation, useGetFioDocsByIdMutation
+} from "../../../../store/api/doctors/doctorsApi";
+import {useEffect, useState} from "react";
+import {IDoctorDeps} from "./types";
+import {_GRAPH_DOCS} from "../../../../constants/constants";
+import {DocList} from "./doc-list";
 
 //
 // useGetDoctorsApplicationsQuery,
@@ -9,6 +18,84 @@ import arrow from "../../../../assets/light-arrow.svg";
 //     useGetAbsenceSchedulersByIdsMutation
 
 export const DocDep = () => {
+
+    const [page, setPage] = useState(0);
+    const [docs, setDocs] = useState<null | IDoctorDeps[]>(null)
+
+    const {data: docData, isSuccess: docSuccess} = useGetDoctorsApplicationsQuery(page)
+    const [worksDocTrigger] = useGetDoctorWorkSchedulersByIdsMutation()
+    const [absenceDocTrigger] = useGetAbsenceSchedulersByIdsMutation()
+    const [getFioDocs] = useGetFioDocsByIdMutation()
+
+    useEffect(() => {
+
+        if (docData && docSuccess) {
+
+            const fetchData = async() => {
+                const result: any = []
+
+                const resultsPromise = await Promise.allSettled([
+                    worksDocTrigger(docData.content).then(
+                        result => ({ type: 'worksDoc', data: result }),
+                        error => ({ type: 'worksDoc', error: error })
+                    ),
+                    absenceDocTrigger(docData.content).then(
+                        result => ({ type: 'absenceDoc', data: result }),
+                        error => ({ type: 'absenceDoc', error: error })
+                    )
+                ]);
+                resultsPromise.forEach((el: any) => {
+                    if (el.status === "fulfilled") {
+                        const tmp = el.value.data.data.map(element =>{
+                            return {
+                                ...element,
+                                type: el.value.type
+                            }
+                        })
+                        result.push(tmp)
+                    }
+                })
+                return result.flat()
+            }
+
+            fetchData()
+                .then((res) => {
+                    const ids = res.map(el => el.doctorId)
+                    getFioDocs(ids)
+                        .unwrap()
+                        .then((data) => {
+                            const result = res.map(element => {
+                                const foundElement =  data.find((t) => t.id === element.doctorId)
+                                return {
+                                    ...element,
+                                    ...foundElement.fullName
+                                }
+                            })
+
+                            setDocs(result)
+                        })
+                        .catch((err) => console.log(err))
+                })
+
+        }
+
+    },[docData, docSuccess])
+
+
+    const nextSlide = () => {
+        if (docData?.pageable?.pageNumber < docData?.totalPages - 1) {
+            setPage((prev) => prev + 1);
+        }
+    };
+
+    const prevSlide = () => {
+        if (docData?.pageable?.pageNumber > 0) {
+            setPage((prev) => prev - 1);
+        }
+    };
+
+
+    console.log(docs)
 
     return (
         <div className={'flex flex-col w-full h-[50%] relative'}>
@@ -29,63 +116,17 @@ export const DocDep = () => {
 
             </div>
 
-            <div className={'flex items-center gap-[10px] overflow-hidden'}>
-
-                <div
-                    className={'bg-white min-w-[430px] p-[20px] mt-[10px] shrink-0 grow-0 flex flex-col rounded-[20px] shadow-lg'}>
-
-                    {/*<div className={'flex items-center gap-[10px] text-[14px] font-[400] text-[#00000080]'}>*/}
-                    {/*    <div className={'flex items-center gap-[5px]'}>*/}
-                    {/*        <img className={'-translate-y-[1px]'} src={clock} alt={'clock'}/>*/}
-                    {/*        <div>13:38</div>*/}
-                    {/*    </div>*/}
-                    {/*    <div>|</div>*/}
-                    {/*    <div>22.06.2024</div>*/}
-                    {/*    <div>|</div>*/}
-                    {/*    <div>Кадровое отделение</div>*/}
-                    {/*</div>*/}
-
-                    <div className={' flex flex-col'}>
-                        <div className={'text-[14px] font-[400] text-[#00000080]'}>Врач</div>
-                        <div className={'font-[400] text-[18px] text-black'}>Константинопольский</div>
-                        <div className={'font-[400] text-[18px] text-black'}>Константин Константинович</div>
-                    </div>
-
-                    <div className={'w-full h-[1px] bg-[#00000026] my-[5px]'}></div>
-
-                    <div className={'flex flex-col'}>
-                        <div className={'text-[14px] font-[400] text-[#00000080]'}>Изменения в разделах:</div>
-                        <div className={'flex w-full h-[110px]'}>
-                            <div className={'w-1/2'}>
-                                <div className={'font-[600] text-[18px] text-black'}>a</div>
-                                <div className={'font-[600] text-[18px] text-black'}>a</div>
-                                <div className={'font-[600] text-[18px] text-black'}>a</div>
-                                <div className={'font-[600] text-[18px] text-black'}>a</div>
-                            </div>
-                            <div className={'w-1/2'}>
-                                <div className={'font-[600] text-[18px] text-black'}>Ставка</div>
-                            </div>
-                        </div>
-
-                        <div
-                            className={'flex items-center gap-[15px] bg-[#00A3FF] rounded-[50px] py-[6px] px-[15px] max-w-[277px] mt-[10px]'}>
-                            <img src={eye} alt={'eye'}/>
-                            <span className={'font-[80] text-white text-[18px]'}>Рассмотреть изменения</span>
-                        </div>
-                    </div>
-
-                </div>
-
-
-            </div>
+            <DocList docs={docs} />
 
             <div
-                className={`absolute top-[50%] -left-10 w-[30px] h-[30px] rounded-[50%] bg-[#00A3FF] flex justify-center items-center text-center`}>
+                onClick={prevSlide}
+                className={`cursor-pointer absolute top-[50%] -left-10 w-[30px] h-[30px] rounded-[50%] bg-[#00A3FF] flex justify-center items-center text-center`}>
                 <img src={arrow} alt={'<'}/>
             </div>
 
             <div
-                className={`absolute top-[50%] -right-10 w-[30px] h-[30px] rounded-[50%] bg-[#00A3FF] flex justify-center items-center text-center rotate-[180deg]`}>
+                onClick={nextSlide}
+                className={`cursor-pointer absolute top-[50%] -right-10 w-[30px] h-[30px] rounded-[50%] bg-[#00A3FF] flex justify-center items-center text-center rotate-[180deg]`}>
                 <img src={arrow} alt={'<'}/>
             </div>
 

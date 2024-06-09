@@ -23,26 +23,29 @@ export const AnalyticsPage: React.FC = () => {
 
 
     return (
-        <Timeline
-            groups={groups}
-            items={items}
-            keys={{
-                groupIdKey: 'id',
-                groupTitleKey: 'title',
-                itemIdKey: 'id',
-                itemTitleKey: 'title',
-                itemGroupKey: 'group',
-                itemTimeStartKey: 'start_time',
-                itemTimeEndKey: 'end_time',
-                groupRightTitleKey: 'rightTitle',
-                itemDivTitleKey: 'title',
-            }}
-            canChangeGroup={false}
-            defaultTimeStart={moment().add(-12, 'hour')}
-            defaultTimeEnd={moment().add(12, 'hour')}
-            onItemMove={handleItemMove}
-            canMove={true}
-            canResize="both"
-        />
+        <div>
+
+        </div>
+        // <Timeline
+        //     groups={groups}
+        //     items={items}
+        //     keys={{
+        //         groupIdKey: 'id',
+        //         groupTitleKey: 'title',
+        //         itemIdKey: 'id',
+        //         itemTitleKey: 'title',
+        //         itemGroupKey: 'group',
+        //         itemTimeStartKey: 'start_time',
+        //         itemTimeEndKey: 'end_time',
+        //         groupRightTitleKey: 'rightTitle',
+        //         itemDivTitleKey: 'title',
+        //     }}
+        //     canChangeGroup={false}
+        //     defaultTimeStart={moment().add(-12, 'hour')}
+        //     defaultTimeEnd={moment().add(12, 'hour')}
+        //     onItemMove={handleItemMove}
+        //     canMove={true}
+        //     canResize="both"
+        // />
     );
 };

@@ -4,6 +4,7 @@ import pencil from "../../../../../assets/pencil.svg";
 export const EditableChanges = ({ current, feature }) => {
     const cur = current[0];
 
+
     const mergeAndMarkWorkDays = (current, feature) => {
         const curWorkDays = current.workDays || [];
         const featureWorkDays = feature.workDays || [];
@@ -17,6 +18,7 @@ export const EditableChanges = ({ current, feature }) => {
 
         return { mergedWorkDays, addedWorkDays };
     };
+
 
     const mergeAndMarkOptionalModality = (current, feature) => {
         const curOptionalModality = current.optionalModality || [];

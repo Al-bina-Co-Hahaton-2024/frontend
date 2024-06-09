@@ -7,7 +7,7 @@ import {AnimatePresence, motion} from "framer-motion";
 export const DocList: React.FC<any> = React.memo(({docs}) => {
     return (
         <div className={'flex items-center gap-[10px] overflow-hidden'}>
-            <AnimatePresence>
+            <AnimatePresence mode={'wait'}>
                 {
                     docs && docs.map((doctor) => (
                         <motion.li

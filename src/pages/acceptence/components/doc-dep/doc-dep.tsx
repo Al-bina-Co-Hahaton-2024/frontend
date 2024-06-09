@@ -111,7 +111,7 @@ export const DocDep = () => {
 
                 <div className={'flex items-center gap-2 rounded-[20px] px-[25px] py-[12px] bg-white h-[40px]'}>
                     <img src={blue_search} alt={'search'}/>
-                    <input className={'border-none m-0 p-0'} placeholder={'Искать сверхразума...'} type="text"/>
+                    <input disabled className={'border-none m-0 p-0'} placeholder={'В разаработке'} type="text"/>
                 </div>
 
             </div>

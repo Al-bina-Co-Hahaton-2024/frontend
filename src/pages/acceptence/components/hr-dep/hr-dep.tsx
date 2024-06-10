@@ -7,8 +7,12 @@ import eye from '../../../../assets/eye.svg';
 import arrow from '../../../../assets/light-arrow.svg';
 import { _APPROVE_DICT } from '../../../../constants/constants';
 import {HrList} from "./hr-list";
+import {useAppSelector} from "../../../../store/hooks/storeHooks";
 
 export const HrDep = () => {
+
+    // const check = useAppSelector((state) => state.serviceSlice.docId)
+
     const [hrPage, setHrPage] = useState(0);
     const [hrDocs, setHrDocs] = useState<any>([]);
     const { data: hrData, isSuccess: hrSuccess, isLoading: hrLoading } = useGetDoctorChangesQuery({ page: hrPage });

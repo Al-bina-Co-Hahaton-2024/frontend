@@ -11,6 +11,16 @@ export const _DAYS_OF_WEEKS = [
     { value: 'SUNDAY', label: 'Воскресенье' }
 ];
 // FLG, RG, MMG, KT, DENSITOMETER, MRT
+
+export const _OPT_MODALITIES = [
+    { value: 'FLG', label: 'ФЛГ' },
+    { value: 'RG', label: 'РГ' },
+    { value: 'MMG', label: 'ММГ' },
+    { value: 'KT', label: 'КТ' },
+    { value: 'DENSITOMETER', label: 'Денситометрия' },
+    { value: 'MRT', label: 'МРТ' }
+];
+
 export const _MEDICAL_MODALITIES = {
     "RG": "РГ",
     "MRT": "МРТ",

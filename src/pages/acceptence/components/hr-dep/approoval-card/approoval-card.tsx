@@ -3,21 +3,30 @@ import cross_line from '../../../../../assets/cross_line.svg'
 import arrow_down from '../../../../../assets/arrow_down.svg'
 import {CurrentChanges} from "./current-changes";
 import {EditableChanges} from "./editable-changes";
-import {useAppSelector} from "../../../../../store/hooks/storeHooks";
+import {useAppDispatch, useAppSelector} from "../../../../../store/hooks/storeHooks";
 import {
-    useGetApprovedDoctorCardQuery,
+    useApproveByManagerMutation, useDeclineByManagerMutation,
+    useGetApprovedDoctorCardQuery, useGetDoctorChangesQuery,
     useGetDoctorsByIdsMutation, useGetFioDocsByIdMutation,
-    useLazyGetApprovedDoctorCardQuery
+    useLazyGetApprovedDoctorCardQuery, useLazyGetDoctorsQuery
 } from "../../../../../store/api/doctors/doctorsApi";
 import {useEffect, useState} from "react";
+import {setApprovalCardState} from "../../../../../store/reducers/serviceSlice";
 
 export const ApproovalCard = () => {
 
+    const dispatch = useAppDispatch()
     const docId = useAppSelector((state) => state.serviceSlice.docId)
+    const reqId = useAppSelector((state) => state.serviceSlice.reqId)
+
+    const [revalidate] = useLazyGetDoctorsQuery()
 
     const [getDoctor] = useGetDoctorsByIdsMutation()
     const [approovedDoctor] = useLazyGetApprovedDoctorCardQuery()
     const [getDocFio] = useGetFioDocsByIdMutation()
+
+    const [approve] = useApproveByManagerMutation()
+    const [decline] = useDeclineByManagerMutation()
 
     const [fio, setFio] = useState<any>(null)
     const [aprrovedData, setApprovedData] = useState<any>(null)
@@ -75,7 +84,9 @@ export const ApproovalCard = () => {
 
                 </div>
 
-                <div className={'cursor-pointer'}>
+                <div onClick={() => {
+                    dispatch(setApprovalCardState({isOpen: false, docId: null, reqId: null}))
+                }} className={'cursor-pointer'}>
                     <img src={cross_line} alt={'exit'}/>
                 </div>
 
@@ -86,10 +97,20 @@ export const ApproovalCard = () => {
             <EditableChanges current={doc} feature={aprrovedData} />
 
             <div className={'mt-[40px] w-full flex items-center mx-[25px] gap-5'}>
-                <div className={'w-[50%] text-center font-[700] text-[18px] bg-[#FFA842] rounded-[40px] text-white py-[15px] cursor-pointer'}>
+                <div onClick={() => {
+                    approve(reqId).unwrap().then(() => {
+                        dispatch(setApprovalCardState({isOpen: false, docId: null}))
+                        revalidate(0)
+                    })
+                }} className={'w-[50%] text-center font-[700] text-[18px] bg-[#FFA842] rounded-[40px] text-white py-[15px] cursor-pointer'}>
                     Согласовтаь изменения
                 </div>
-                <div className={'w-[35%] text-center font-[700] text-[18px] bg-[#D9E2E8] rounded-[40px] text-black py-[15px] cursor-pointer'}>
+                <div onClick={() => {
+                    decline(reqId).unwrap().then(() => {
+                        dispatch(setApprovalCardState({isOpen: false, docId: null}))
+                        revalidate(0)
+                    })
+                }} className={'w-[35%] text-center font-[700] text-[18px] bg-[#D9E2E8] rounded-[40px] text-black py-[15px] cursor-pointer'}>
                     Отклонить заявку
                 </div>
             </div>

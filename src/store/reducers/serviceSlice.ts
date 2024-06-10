@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     isDocApprovalCardOpen: false,
-    docId: null
+    docId: null,
+    reqId: null
 };
 
 export const serviceSlice = createSlice({
@@ -12,6 +13,9 @@ export const serviceSlice = createSlice({
         setApprovalCardState: (state, action) => {
             state.isDocApprovalCardOpen = action.payload.isOpen;
             state.docId = action.payload.docId;
+            if (action.payload.reqId) {
+                state.reqId = action.payload.reqId
+            }
         }
     }
 });

@@ -42,7 +42,8 @@ export const HrList: React.FC<any> = React.memo(({hrDocs}) => {
                                 onClick={() => {
                                     dispatch(setApprovalCardState({
                                         isOpen: true,
-                                        docId: doctor.doctorId
+                                        docId: doctor.doctorId,
+                                        reqId: doctor.id
                                     }))
                                 }}
                                 className={'flex items-center gap-[15px] bg-[#FFA842] hover:bg-[#FFA980] transition duration-500 ease-in-out rounded-[50px] py-[6px] px-[15px] max-w-[277px] mt-[10px] cursor-pointer'}>

@@ -64,7 +64,8 @@ export const doctorsApi = baseApi.injectEndpoints({
                return {
                    url: `/approve/doctor-changes?page=${page}&size=3&sort=id`
                }
-           }
+           },
+            providesTags: ['doctor']
         }),
         getAbsenceDoctors: builder.query({
            query: (args) => {
@@ -103,6 +104,24 @@ export const doctorsApi = baseApi.injectEndpoints({
                     body
                 }
             }
+        }),
+        approveByManager: builder.mutation({
+            query: (id) => {
+                return {
+                    url: `/approve/doctor-changes/${id}/approve`,
+                    method: 'POST'
+                }
+            },
+            invalidatesTags: ['doctor']
+        }),
+        declineByManager: builder.mutation({
+            query: (id) => {
+                return {
+                    url: `/approve/doctor-changes/${id}`,
+                    method: 'DELETE'
+                }
+            },
+            invalidatesTags: ['doctor']
         })
     })
 })
@@ -122,5 +141,7 @@ export const {
     useGetDoctorWorkSchedulersByIdsMutation,
     useGetAbsenceSchedulersByIdsMutation,
     useGetDoctorsByIdsMutation,
+    useApproveByManagerMutation,
+    useDeclineByManagerMutation
 }
     = doctorsApi

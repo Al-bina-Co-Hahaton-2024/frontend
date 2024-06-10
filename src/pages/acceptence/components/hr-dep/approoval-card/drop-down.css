@@ -1,0 +1,21 @@
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-container .dropdown-content {
+    position: absolute;
+    top: auto;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-container::-webkit-scrollbar .dropdown-content::-webkit-scrollbar  {
+    display: none;
+}

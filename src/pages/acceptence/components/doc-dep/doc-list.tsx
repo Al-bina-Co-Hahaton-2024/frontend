@@ -2,9 +2,12 @@ import {_GRAPH_DOCS} from "../../../../constants/constants";
 import eye from "../../../../assets/eye.svg";
 import React from "react";
 import {AnimatePresence, motion} from "framer-motion";
+import {useAppDispatch} from "../../../../store/hooks/storeHooks";
+import {setGraphApprovalCard} from "../../../../store/reducers/serviceSlice";
 
 
 export const DocList: React.FC<any> = React.memo(({docs}) => {
+    const dispatch = useAppDispatch()
     return (
         <div className={'flex items-center gap-[10px] overflow-hidden'}>
             <AnimatePresence mode={'wait'}>
@@ -55,6 +58,12 @@ export const DocList: React.FC<any> = React.memo(({docs}) => {
                                 </div>
 
                                 <div
+                                    onClick={() => dispatch(setGraphApprovalCard({
+                                        isOpen: true,
+                                        docId: doctor.doctorId,
+                                        reqId: doctor.id,
+                                        type: doctor.type
+                                    }))}
                                     className={'cursor-pointer flex items-center gap-[15px] bg-[#00A3FF] rounded-[50px] py-[6px] px-[15px] max-w-[277px] mt-[10px]'}>
                                     <img src={eye} alt={'eye'}/>
                                     <span className={'font-[80] text-white text-[18px]'}>Рассмотреть изменения</span>

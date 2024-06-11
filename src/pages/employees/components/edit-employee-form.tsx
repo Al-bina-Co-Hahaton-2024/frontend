@@ -120,11 +120,11 @@ export const EditEmployeeForm = ({ person, onFormSubmit }) => {
             doctorId: person.id,
             rate: data.rate === intersections['rate'] ? null : data.rate,
             modality: convertedModality === intersections['modality'] ? null : convertedModality,
-            optionalModality: opsModalityCheck.length !== 0 ? optModality : null,
+            optionalModality: opsModalityCheck.length !== 0 ? optModality : [],
             startContract: data.dateOfExit === intersections['startContract'] ? null : data.dateOfExit,
             endContract: null,
             hours: data.workTime == intersections['hours'] ? null : data.workTime,
-            workDays: workDaysCheck !== null && workDaysCheck?.length !== 0 && data.workPreference?.map((el) => el?.value) ? data.workPreference?.map((el) => el?.value) : null,
+            workDays: workDaysCheck !== null && workDaysCheck?.length !== 0 && data.workPreference?.map((el) => el?.value) ? data.workPreference?.map((el) => el?.value) : [],
         }
 
         editDoctor({

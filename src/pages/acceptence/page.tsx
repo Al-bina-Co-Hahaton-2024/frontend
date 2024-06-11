@@ -2,10 +2,12 @@ import {HrDep} from "./components/hr-dep/hr-dep";
 import {DocDep} from "./components/doc-dep/doc-dep";
 import {ApproovalCard} from "./components/hr-dep/approoval-card/approoval-card";
 import {useAppSelector} from "../../store/hooks/storeHooks";
+import {GraphApprovalCard} from "./components/doc-dep/graph-approval-card/graph-approval-card";
 
 
 export const AcceptanceUsersPage = () => {
 
+    const isGraphCard = useAppSelector((state) => state.serviceSlice.isGraphApprovalCardOpen)
     const isAppCard = useAppSelector((state) => state.serviceSlice.isDocApprovalCardOpen)
     return(
         <div className={'mt-[20px] w-[1450px] mx-auto flex flex-col items-center h-[95%] relative'}>
@@ -20,6 +22,7 @@ export const AcceptanceUsersPage = () => {
             </div>
 
             {isAppCard && <ApproovalCard /> }
+            {isGraphCard && <GraphApprovalCard /> }
 
         </div>
     )

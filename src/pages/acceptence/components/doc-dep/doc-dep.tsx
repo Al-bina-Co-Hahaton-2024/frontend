@@ -94,9 +94,6 @@ export const DocDep = () => {
         }
     };
 
-
-    console.log(docs)
-
     return (
         <div className={'flex flex-col w-full h-[50%] relative'}>
 

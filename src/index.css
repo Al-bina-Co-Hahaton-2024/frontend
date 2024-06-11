@@ -20,3 +20,108 @@ body {
 .custom-sidebar-shadow {
     box-shadow: 0px 4px 20px 0px #00000014;
 }
+
+.rmdp-top-class {
+    border: none !important;
+}
+
+.rmdp-calendar {
+    border: none !important;
+}
+
+.end {
+    border-bottom-right-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.start {
+    border-bottom-left-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+}
+
+.sd {
+    border-radius: 0 !important;
+}
+
+.rmdp-wrapper {
+    width: 100% !important;
+    border: none !important;
+
+    box-shadow: none !important;
+}
+.rmdp-top-class {
+    display: block !important;
+    width: 100% !important;
+}
+
+.rmdp-day-picker {
+    display: block !important;
+}
+
+.rmdp-week {
+    display: flex !important;
+}
+
+.rmdp-range {
+    /*background-color: #F62E46 !important;*/
+}
+
+.rmdp-week-day {
+    width: 50px !important;
+    height: 50px !important;
+}
+
+.sd {
+    /*background-color: #0000000D !important;*/
+}
+
+.rmdp-day  {
+    width: 15% !important;
+    height: 40px !important;
+    z-index: 10;
+
+    /*background: #0000000D !important;*/
+
+}
+
+
+/*.react-datepicker {*/
+/*    width: 100%;*/
+/*    border: none !important;*/
+
+/*}*/
+/*.react-datepicker__month-container {*/
+/*    width: 100%;*/
+/*    border: none !important;*/
+/*}*/
+
+/*.react-datepicker__header  {*/
+/*    background-color: white !important;*/
+/*    border:none !important;*/
+/*}*/
+
+/*.react-datepicker__day-names {*/
+/*    width: 100%;*/
+/*}*/
+
+/*.react-datepicker__week {*/
+/*    display: flex !important;*/
+/*    justify-content: center;*/
+/*}*/
+
+/*.react-datepicker__day-name {*/
+/*    width: 13% !important;*/
+/*}*/
+
+/*.react-datepicker__day {*/
+/*    width: 13% !important;*/
+/*    height: 30px !important;*/
+
+/*    display: flex !important;*/
+/*    align-items: center !important;*/
+/*    justify-content: center !important;*/
+
+/*    border-radius: 4px !important;*/
+
+/*    background-color: #0000000D;*/
+/*}*/

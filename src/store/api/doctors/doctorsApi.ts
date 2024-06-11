@@ -114,6 +114,14 @@ export const doctorsApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ['doctor']
         }),
+        approveAbsenceScheduler: builder.mutation({
+           query: (id) => {
+               return {
+                   url: `/approve/absence-schedulers/${id}/approve`,
+                   method: 'POST'
+               }
+           }
+        }),
         declineByManager: builder.mutation({
             query: (id) => {
                 return {
@@ -142,6 +150,7 @@ export const {
     useGetAbsenceSchedulersByIdsMutation,
     useGetDoctorsByIdsMutation,
     useApproveByManagerMutation,
-    useDeclineByManagerMutation
+    useDeclineByManagerMutation,
+    useApproveAbsenceSchedulerMutation
 }
     = doctorsApi

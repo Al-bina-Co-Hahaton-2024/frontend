@@ -23,9 +23,7 @@ export const serviceSlice = createSlice({
             }
         },
         setGraphApprovalCard: (state, action) => {
-            if (action.payload.isOpen) {
-                state.isGraphApprovalCardOpen = action.payload.isOpen
-            }
+            state.isGraphApprovalCardOpen = action.payload.isOpen
             if (action.payload.type) {
                 state.typeGraph = action.payload.type
             }

@@ -79,7 +79,7 @@ export const DocDep = () => {
 
         }
 
-    },[docData, docSuccess])
+    },[docData, docSuccess, page])
 
 
     const nextSlide = () => {
@@ -103,7 +103,7 @@ export const DocDep = () => {
                     className={'flex items-center gap-[15px] bg-[#00A3FF] rounded-[50px] pt-[5px] pr-[15px] pb-[5px] pl-[15px]'}>
                     <span className={'font-[700] text-white text-[18px]'}>Врачебное отделение</span>
                     <span className={'w-[20px] h-[20px] rounded-[50%] bg-white text-black text-center'}><div
-                        className={'text-sm'}>12</div></span>
+                        className={'text-sm'}>=</div></span>
                 </div>
 
                 <div className={'flex items-center gap-2 rounded-[20px] px-[25px] py-[12px] bg-white h-[40px]'}>

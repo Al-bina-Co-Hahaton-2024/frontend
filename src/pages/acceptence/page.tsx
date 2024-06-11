@@ -9,6 +9,7 @@ export const AcceptanceUsersPage = () => {
 
     const isGraphCard = useAppSelector((state) => state.serviceSlice.isGraphApprovalCardOpen)
     const isAppCard = useAppSelector((state) => state.serviceSlice.isDocApprovalCardOpen)
+
     return(
         <div className={'mt-[20px] w-[1450px] mx-auto flex flex-col items-center h-[95%] relative'}>
             <div className={'absolute w-full h-full bg-white bg-opacity-30 rounded-[20px] shadow-lg'}></div>

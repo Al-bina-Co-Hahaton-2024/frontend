@@ -1,8 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import DatePicker, {Calendar, DateObject} from 'react-multi-date-picker';
+import React, { useEffect, useState } from 'react';
+import DatePicker, { Calendar, DateObject } from 'react-multi-date-picker';
 import pencil from "../../../../../assets/pencil.svg";
-import colors from "react-multi-date-picker/plugins/colors"
-
 
 const getColor = (date, ranges) => {
     const dateObj = date.toDate();
@@ -14,40 +12,36 @@ const getColor = (date, ranges) => {
     return null;
 };
 
-const mergeSchedules = (absenceSchedules, doc) => {
+const mergeSchedules = (doc, absenceSchedules) => {
     const doctor = {
-        start: doc.start,
-        end: doc.end,
-        color: 'orange' // цвет для диапазона доктора
+        start: new Date(absenceSchedules?.start).setHours(0, 0, 0, 0),
+        end: new Date(new Date(absenceSchedules?.end).setHours(23, 59, 59, 999)),
+        color: 'red' // цвет для диапазона доктора
     };
 
     return [
-        ...absenceSchedules.map(schedule => ({
-            start: new Date(schedule.start),
-            end: new Date(schedule.end),
-            color: 'red'
+        ...doc.absenceSchedules.map(schedule => ({
+            start: new Date(schedule.start).setHours(0, 0, 0, 0),
+            end: new Date(new Date(schedule.end).setHours(23, 59, 59, 999)),
+            color: 'black'
         })),
-        {
-            start: new Date(doctor.start),
-            end: new Date(doctor.end),
-            color: doctor.color
-        }
+        doctor
     ];
 };
 
-export const GraphDatePicker = ({doc, absence}) => {
+export const GraphDatePicker = ({ doc, absence }) => {
     const [isEdit, setIsEdit] = useState<any>(false);
     const [values, setValues] = useState<any>([]);
     const [ranges, setRanges] = useState<any>([]);
 
     useEffect(() => {
         if (doc && absence) {
-            const mergedSchedules = mergeSchedules(absence, doc);
+            const mergedSchedules = mergeSchedules(doc[0], absence[0]);
             setRanges(mergedSchedules);
 
-            const initialValues = mergedSchedules.map(schedule => [
-                new DateObject(schedule.start),
-                new DateObject(schedule.end)
+            const initialValues = mergedSchedules.filter(range => range.color === 'red').map(range => [
+                new DateObject(range.start),
+                new DateObject(range.end)
             ]);
             setValues(initialValues);
         }
@@ -57,16 +51,44 @@ export const GraphDatePicker = ({doc, absence}) => {
         setIsEdit(!isEdit);
     };
 
+    const handleCalendarChange = (newValues) => {
+        if (isEdit) {
+            const updatedValues = newValues.filter((value) => {
+                const [start, end] = value;
+
+                return ranges.some(range =>
+                    range.color === 'red' &&
+                    ((start && start?.toDate() >= range.start && start?.toDate() <= range.end) ||
+                        (end && end?.toDate() >= range.start && end?.toDate() <= range.end))
+                );
+            });
+
+            // console.log(newValues)
+            // const newRedIntervals = updatedValues.map((value) => {
+            //     const [start, end] = value;
+            //     console.log(start,end)
+            //     return {
+            //         start: start?.toDate(),
+            //         end: end?.toDate(),
+            //         color: 'red'
+            //     };
+            // });
+
+            // const newRanges = ranges.filter(range => range.color !== 'red').concat(newRedIntervals);
+            // setRanges(newRanges);
+
+            setValues(updatedValues);
+        }
+    };
+
     return (
         <div className="mx-[25px] mt-[20px] relative">
             <div className={'p-[20px] bg-white shadow-lg flex flex-col rounded-[20px]'}>
                 <div className="mb-4 text-[24px] font-[600]">График отгулов</div>
-                {/*{!isEdit && <div className={'bg-black opacity-5 top-24 absolute w-[95%] rounded h-[57%] z-10'}></div>}*/}
                 <div>
                     <Calendar
-
                         value={values}
-                        onChange={setValues}
+                        onChange={handleCalendarChange}
                         multiple
                         range
                         showOtherDays
@@ -79,31 +101,18 @@ export const GraphDatePicker = ({doc, absence}) => {
                             }
                         }}
                         readOnly={!isEdit}
-                        // readOnly={!isEdit}
-
                     />
-
-                    {/*<DatePicker*/}
-                    {/*    disabled={!isEdit}*/}
-                    {/*    selected={startDate}*/}
-                    {/*    onChange={handleSelect}*/}
-                    {/*    startDate={startDate}*/}
-                    {/*    endDate={endDate}*/}
-                    {/*    selectsRange*/}
-                    {/*    inline*/}
-                    {/*/>*/}
                 </div>
                 <div className={'w-full justify-end flex -translate-x-2'}>
                     <button
+                        disabled
                         onClick={handleForm}
-                        className="w-[200px] flex items-center gap-[10px] bg-[#00A3FF] py-[10px] px-[16px] rounded-[20px] cursor-pointer">
-                        <img src={pencil} alt="pencil"/>
-                        <div
-                            className="font-[600] text-[18px] text-white">{isEdit ? 'Сохранить' : 'Редактирование'}</div>
+                        className="w-[200px] flex items-center gap-[10px] bg-[#00A3FF] py-[10px] px-[16px] rounded-[20px] cursor-pointer opacity-20">
+                        <img src={pencil} alt="pencil" />
+                        <div className="font-[600] text-[18px] text-white">{isEdit ? 'Сохранить' : 'Редактирование'}</div>
                     </button>
                 </div>
             </div>
         </div>
     );
 };
-

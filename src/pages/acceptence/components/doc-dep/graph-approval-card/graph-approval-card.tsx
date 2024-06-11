@@ -1,11 +1,8 @@
-// useGetAbsenceSchedulersByIdsMutation
-
-
 import eye from '../../../../../assets/eye.svg';
 import cross_line from '../../../../../assets/cross_line.svg'
-import arrow_down from '../../../../../assets/arrow_down.svg'
 import {useAppDispatch, useAppSelector} from "../../../../../store/hooks/storeHooks";
 import {
+    useApproveAbsenceSchedulerMutation,
     useApproveByManagerMutation, useDeclineByManagerMutation, useGetAbsenceSchedulersByIdsMutation,
     useGetDoctorsByIdsMutation, useGetFioDocsByIdMutation
     , useLazyGetDoctorsQuery
@@ -13,6 +10,7 @@ import {
 import {useEffect, useState} from "react";
 import {CurrentChanges} from "../../hr-dep/approoval-card/current-changes";
 import {GraphDatePicker} from "./graph-datepicker";
+import {setGraphApprovalCard} from "../../../../../store/reducers/serviceSlice";
 
 export const GraphApprovalCard = () => {
 
@@ -25,9 +23,8 @@ export const GraphApprovalCard = () => {
     const [getDoctor] = useGetDoctorsByIdsMutation()
     const [getDocFio] = useGetFioDocsByIdMutation()
     const [absenceTrigger] = useGetAbsenceSchedulersByIdsMutation()
+    const [approveAbsence] = useApproveAbsenceSchedulerMutation()
 
-    const [approve] = useApproveByManagerMutation()
-    const [decline] = useDeclineByManagerMutation()
 
     const [fio, setFio] = useState<any>(null)
     const [doc, setDoc] = useState<any>(null)
@@ -53,13 +50,11 @@ export const GraphApprovalCard = () => {
         }
     }, [docId]);
 
-    console.log(doc)
-    console.log(absenceDoc)
     if (!fio || !doc || !absenceDoc) return null
 
     return (
         <div
-            className={'z-10 flex flex-col fixed right-0 top-0 w-[670px] h-screen bg-white rounded-tl-[20px] rounded-bl-[20px]'}>
+            className={'z-10 flex flex-col fixed right-0 top-0 w-[670px] h-screen bg-white rounded-tl-[20px] rounded-bl-[20px] overflow-y-scroll overflow-hidden'}>
 
             <div
                 className={'w-full h-[110px] flex justify-between items-center bg-[#00A3FF] rounded-tl-[20px] py-[33px] px-[45px]'}>
@@ -88,7 +83,7 @@ export const GraphApprovalCard = () => {
                 </div>
 
                 <div onClick={() => {
-                    // dispatch(setApprovalCardState({isOpen: false, docId: null, reqId: null}))
+                    dispatch(setGraphApprovalCard({isOpen: false, docId: null, reqId: null, type: null}))
                 }} className={'cursor-pointer'}>
                     <img src={cross_line} alt={'exit'}/>
                 </div>
@@ -97,25 +92,24 @@ export const GraphApprovalCard = () => {
 
             <CurrentChanges fioData={fio} docData={doc} />
             <GraphDatePicker doc={doc} absence={absenceDoc} />
-            {/*<EditableChanges current={doc} feature={aprrovedData} />*/}
 
             <div className={'mt-[40px] w-full flex items-center mx-[25px] gap-5'}>
                 <div onClick={() => {
-                    approve(reqId).unwrap().then(() => {
-                        // dispatch(setApprovalCardState({isOpen: false, docId: null}))
+                    approveAbsence(reqId).unwrap().then(() => {
+                        dispatch(setGraphApprovalCard({isOpen: false, docId: null, reqId: null, type: null}))
                         revalidate(0)
-                    })
+                    }).catch((err) => console.log(err))
                 }} className={'w-[50%] text-center font-[700] text-[18px] bg-[#00A3FF] rounded-[40px] text-white py-[15px] cursor-pointer'}>
                     Согласовтаь изменения
                 </div>
-                <div onClick={() => {
-                    decline(reqId).unwrap().then(() => {
-                        // dispatch(setApprovalCardState({isOpen: false, docId: null}))
-                        revalidate(0)
-                    })
-                }} className={'w-[35%] text-center font-[700] text-[18px] bg-[#D9E2E8] rounded-[40px] text-black py-[15px] cursor-pointer'}>
-                    Отклонить заявку
-                </div>
+                {/*<div onClick={() => {*/}
+                {/*    // decline(reqId).unwrap().then(() => {*/}
+                {/*    //     dispatch(setGraphApprovalCard({isOpen: false, docId: null, reqId: null}))*/}
+                {/*    //     revalidate(0)*/}
+                {/*    // })*/}
+                {/*}} className={'w-[35%] text-center font-[700] text-[18px] bg-[#D9E2E8] rounded-[40px] text-black py-[15px] cursor-pointer'}>*/}
+                {/*    Отклонить заявку*/}
+                {/*</div>*/}
             </div>
 
 

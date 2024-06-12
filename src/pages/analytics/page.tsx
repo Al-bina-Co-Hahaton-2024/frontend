@@ -73,6 +73,17 @@ export const AnalyticsPage = () => {
         generateWeekLabels(visibleTimeStart, visibleTimeEnd);
     }, [visibleTimeStart, visibleTimeEnd]);
 
+
+    // const groups = [
+    //     { id: 1, title: 'Group 1' },
+    //     { id: 2, title: 'Group 2' }
+    // ];
+    //
+    // const items = [
+    //     { id: 1, group: 1, title: 'Item 1', start_time: moment(), end_time: moment().add(1, 'hour') },
+    //     { id: 2, group: 2, title: 'Item 2', start_time: moment().add(-0.5, 'hour'), end_time: moment().add(0.5, 'hour') },
+    //     { id: 3, group: 1, title: 'Item 3', start_time: moment().add(2, 'hour'), end_time: moment().add(3, 'hour') }
+    // ];
     useEffect(() => {
         console.log(moment(visibleTimeStart).format('YYYY-MM-DD'))
         getGraph(moment(visibleTimeStart).format('YYYY-MM-DD'))
@@ -93,7 +104,7 @@ export const AnalyticsPage = () => {
                     getReport(res.id)
                         .unwrap()
                         .then((res) => {
-                            alert(res.link)
+                            window.location.href = res.link
                         })
                 },5000)
             })

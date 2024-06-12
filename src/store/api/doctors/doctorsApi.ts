@@ -151,6 +151,6 @@ export const {
     useGetDoctorsByIdsMutation,
     useApproveByManagerMutation,
     useDeclineByManagerMutation,
-    useApproveAbsenceSchedulerMutation
+    useApproveAbsenceSchedulerMutation,
 }
     = doctorsApi

@@ -1,23 +1,14 @@
 .rct-dateHeader {
     border: none !important;
-
     font-weight: 400 !important;
     font-size: 12px !important;
-
     color: #9e9e9e !important;
-
 }
 
 .react-calendar-timeline .rct-header-root {
     background-color: #fff;
     border-bottom: none;
-
-    border-radius: 20px;
 }
-
-/*rct-header-root~div {*/
-/*    width: 200px !important;*/
-/*}*/
 
 .react-calendar-timeline .rct-dateHeader {
     border: none;
@@ -26,17 +17,16 @@
 .react-calendar-timeline .rct-calendar-header {
     border: none;
     margin-bottom: 0;
-    /* overflow: scroll !important; */
 }
-
+.rct-sidebar-row {
+    line-height: 20px !important;
+}
 .react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-6 {
     background-color: rgba(255, 255, 255, 0.5) !important;
-
 }
 
 .react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-0 {
     background-color: rgba(255, 255, 255, 0.5) !important;
-
 }
 
 .react-calendar-timeline .rct-dateHeader {
@@ -47,201 +37,70 @@
     color: black;
 }
 
+.rct-sidebar-row .rct-sidebar-row-even {
+    line-height: 0px !important;
+}
+
 .rct-sidebar {
     border-right: none !important;
     z-index: 7002;
     background: white;
     border-radius: 8px;
-    width: 150px !important;
+    width: 350px !important;
 }
 
-.weekend {
-    margin-top: 10px;
-    height: 24px !important;
-}
-
-/* STYLES FOR РУЧНОЕ ПЛАНИРОВАНИЕ ПЛАШКА! */
-.weekend__garage {
-    background-color: #DADAFC !important;
-    border: none !important;
-    color: transparent !important;
-
-    border-radius: 4px !important;
-}
-
-.weekend__filling {
-    background-color: #FEDDC7 !important;
-    border: none !important;
-    color: transparent !important;
-
-    border-radius: 4px !important;
-}
-
-.weekend__azs {
-    background-color: #ABC9FB !important;
-    border: none !important;
-    color: transparent !important;
-
-    border-radius: 4px !important;
-    z-index: 1000 !important;
-}
-
-.weekend__garage:hover {
-    background-color: #DADAFC !important;
-    color: #757575 !important;
-}
-
-.weekend_garage__end {
-    background-color: #DADAFC !important;
-    border: none !important;
-    color: transparent !important;
-    opacity: 0.6;
-    border-radius: 4px !important;
-
-    transition: opacity 0.5s ease-in-out
-}
-
-.weekend_garage__end:hover {
-    background-color: #DADAFC !important;
-    color: #757575 !important;
-    opacity: 1
-}
-
-.weekend__garage_text {
-    background-color: #ABC9FB !important;
-    border: none !important;
-    border-radius: 4px !important;
-}
-
-/* FIX! */
-.rct-item-content {
-    position: absolute !important;
-    width: 100% !important;
-    height: 40px !important;
-    /* transform: translateY(-30px) !important; */
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    line-height: 15.68px;
-    /* overflow: hidden !important; */
-    text-align: left !important;
-
-    text-transform: uppercase;
-    white-space: nowrap;
-    padding: 0 !important;
-    top: -15px !important;
-
-}
-
-
-.rct-item-Azs {
-    position: absolute !important;
-    width: 100% !important;
-    height: 40px !important;
-    /* transform: translateY(-30px) !important; */
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #757575 !important;
-    line-height: 15.68px;
-    overflow: hidden !important;
-    text-align: left !important;
-
-    text-transform: uppercase;
-    white-space: nowrap;
-    padding: 0 !important;
-    top: -15px !important;
-}
-
-.rct-item-Filling {
-    position: absolute !important;
-    width: 100% !important;
-    height: 40px !important;
-    /* transform: translateY(-30px) !important; */
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #757575 !important;
-    line-height: 15.68px;
-    overflow: hidden !important;
-    text-align: left !important;
-
-    text-transform: uppercase;
-    white-space: nowrap;
-    padding: 0 !important;
-    top: -15px !important;
-    /* background-color: #FEDDC7 !important; */
-}
-
-.rct-item-content_garage {
-    display: none;
-}
-
-
-
-.reservoirs {
-    height: 63px !important;
+.rct-sidebar > div {
+    width: 350px !important;
 }
 
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
     background-color: white;
 }
 
+
 .rct-calendar-header {
     margin-bottom: 30px;
+    transform: translateX(200px);
 }
-
 
 .react-calendar-timeline .rct-outer {
     overflow-y: scroll;
     scroll-behavior: smooth;
-}
-
-.rct-outer {
-    /* height: calc(100vh - 56px - 57px - 91px) !important; */
     height: 80vh !important;
 }
-
 
 .rct-outer::-webkit-scrollbar {
     display: none;
 }
 
-/* обводка списка сайдбара */
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row {
     border: none;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100px !important; /* Ensure group row height matches timeline cell height */
+    font-size: 18px !important; /* Adjust font size for better readability */
+    font-weight: bold !important;
 }
-
-.rct-sidebar-row {
-    border: 1px solid #DADADA !important;
-    /*height: 100px !important;*/
-}
-
-/* цвет таблицы */
 
 .react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
     background-color: #fff;
 }
 
-/* Вертикальные линии таблицы */
 .react-calendar-timeline .rct-vertical-lines .rct-vl {
-    border-left: 1px solid #F5F5F5 !important;
+    border-left: 1px solid gray !important;
 }
 
-/* Горизонтальные линии таблицы */
 .react-calendar-timeline .rct-horizontal-lines .rct-hl-even {
-    border-bottom: 1px solid #F5F5F5 !important;
+    border-bottom: 1px solid gray !important;
 }
 
 .react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
-    border-bottom: 1px solid #F5F5F5 !important;
+    border-bottom: 1px solid gray !important;
 }
 
-/* убрал скролл горизонтальный */
-
 .react-calendar-timeline .rct-scroll {
-    /* overflow: hidden; */
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -249,4 +108,20 @@
 .react-calendar-timeline .rct-scroll::-webkit-scrollbar {
     width: 0 !important;
     height: 0;
+}
+
+.rct-item-Azs {
+    position: absolute !important;
+    width: 100% !important;
+    height: 100px !important; /* Ensure item height matches group row height */
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #757575 !important;
+    line-height: 15.68px;
+    overflow: hidden !important;
+    text-align: left !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0 !important;
+    top: 0 !important;
 }

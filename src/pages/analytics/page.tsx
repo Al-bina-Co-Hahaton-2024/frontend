@@ -3,7 +3,11 @@ import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
 import '../../styles/calendar.css';
-import { useLazyGetGraphOnMonthQuery } from "../../store/api/schedule/planer";
+import {
+    useGetAnalyzesWeeksMutation,
+    useLazyGetGraphOnMonthQuery,
+    useLazyGetWeekNumsQuery
+} from "../../store/api/schedule/planer";
 import { useCreateReportMutation, useLazyGetReportQuery } from "../../store/api/export/exportApi";
 import { v4 as uuidv4 } from 'uuid';
 import { useGetDoctorsByIdsMutation, useGetFioDocsByIdMutation } from "../../store/api/doctors/doctorsApi";
@@ -14,6 +18,8 @@ export const AnalyticsPage = () => {
     const [docsFio] = useGetFioDocsByIdMutation();
 
     const [getGraph] = useLazyGetGraphOnMonthQuery();
+    const [weekNums] = useLazyGetWeekNumsQuery()
+    const [weekAnalysis] = useGetAnalyzesWeeksMutation()
 
     const [createReport] = useCreateReportMutation();
     const [getReport] = useLazyGetReportQuery();
@@ -78,13 +84,59 @@ export const AnalyticsPage = () => {
                                     return element.doctors.map((doc) => ({
                                         id: uuidv4(),
                                         group: doc.doctorId,
-                                        start_time: moment(`${element.date}T08:00:00`).valueOf(),
-                                        end_time: moment(`${element.date}T17:00:00`).valueOf()
+                                        start_time: moment(`${element.date}T05:00:00`).valueOf(),
+                                        end_time: moment(`${element.date}T20:59:00`).valueOf()
                                     }));
                                 }).flat();
 
                                 setGroupsTimeline(docsGroups);
                                 setItemsTimeline(tmpItems);
+                                const weeksDates: any = []
+                                let monthStart = visibleTimeStart
+
+                                for (let i = 0; i <= 4; i++) {
+                                    let tmp = moment(monthStart).add(1, 'week').format('YYYY-MM-DD')
+                                    monthStart = tmp
+                                    weeksDates.push(tmp)
+                                }
+                                weeksDates.unshift(moment(visibleTimeStart).format('YYYY-MM-DD'))
+                                //НЕДЕЛИ
+                                weekNums(weeksDates)
+                                    .unwrap()
+                                    .then(weekRes => {
+                                        // console.log(weekRes)
+                                        const analysisWeeks: any = []
+
+                                        weekRes?.forEach((element) => {
+                                            const obj = {
+                                                year: String(moment(element.startDate).year()),
+                                                week: element.weekNumber
+                                            }
+
+                                            analysisWeeks.push(obj)
+                                        })
+
+                                        weekAnalysis(analysisWeeks)
+                                            .unwrap()
+                                            .then(analysis => {
+                                                // console.log(analysis)
+
+                                                const mergeWeeks = weekRes.map((el) => {
+                                                    const foundedObj = analysis.find(element => element.weekNumber === el.weekNumber)
+                                                    return {
+                                                       ...el,
+                                                       ...foundedObj
+                                                    }
+                                                })
+
+                                                // setWeeks(mergeWeeks)
+
+                                                console.log(weekRes[0].startDate)
+                                                setVisibleTimeStart(moment(weekRes[0].startDate).valueOf())
+                                                setVisibleTimeEnd(moment(weekRes[weekRes.length -1].endDate).add(1, 'week').valueOf())
+                                            })
+                                    })
+                                console.log(weeksDates)
                             });
                     });
             });
@@ -134,7 +186,7 @@ export const AnalyticsPage = () => {
                 })}
             >
                 <div className="rct-item-Azs" onClick={() => alert(moment(item.start_time))}>
-                    DC
+
                 </div>
             </div>
         );
@@ -143,8 +195,41 @@ export const AnalyticsPage = () => {
     return (
         <div className={'w-[1600px] mx-auto my-[30px] rounded relative'}>
             <button onClick={handleGetReport} className={'absolute border rounded p-2 left-2 top-2 bg-red-700 text-white cursor-pointer'}>СКАЧАТЬ</button>
-            <div className={'w-[90%] bg-white rounded overflow-hidden'}>
-                <div className={'w-full bg-white relative mt-12'}>
+
+            <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
+                <div className={'w-full bg-white mt-12'}>
+                    <div className={'relative -top-10 z-[9999] translate-x-[300px]'}>
+                        {weeks.map((week, index) => {
+                            return (
+                                <div
+                                    key={index}
+                                    className="week-label"
+                                    style={{
+                                        position: 'absolute',
+                                        top: '40px',
+
+                                        left: `${((week.start.valueOf() - visibleTimeStart) / (visibleTimeEnd - visibleTimeStart)) * 100}%`,
+                                        width: `${((week.end.valueOf() - week.start.valueOf()) / (visibleTimeEnd - visibleTimeStart)) * 100}%`,
+                                        height: '40px',
+                                        backgroundColor:
+                                            week.status === 'green'
+                                                ? 'rgba(0,255,0,0.3)'
+                                                : week.status === 'yellow'
+                                                    ? 'rgba(255,255,0,0.3)'
+                                                    : 'rgba(255,0,0,0.3)',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        zIndex: '9999'
+                                    }}
+                                    onClick={() => alert(week.label)}
+                                >
+                                    {week.label}
+                                </div>
+                            );
+                        })}
+                    </div>
                     {groupsTimeline && itemsTimeline && <Timeline
                         groups={groupsTimeline}
                         items={itemsTimeline}

@@ -3,6 +3,25 @@ import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
 import '../../styles/calendar.css';
+import {useLazyGetGraphOnMonthQuery} from "../../store/api/schedule/planer";
+import {useCreateReportMutation, useLazyGetReportQuery} from "../../store/api/export/exportApi";
+
+// REQ
+
+// 1. Забрать врачей - getDoctorsByIds
+// 2. Фамилии врачей - getFioDocsById
+//
+// 3. Забрать график врачей на месяц - useLazyGetGraphOnMonthQuery
+// 4. Забрать недели на месяц - useLazyGetWeekNumsQuery
+// 5. Забрать анализ по неделям - useGetAnalyzesWeeksMutation
+//
+// 6. Смапать это все
+
+//TIMELINE
+// 1. Ограничить что бы нельзя было его двигать!
+// 2. На русском
+// 3. defaultTimeStart={moment().add(-12, 'hour')} defaultTimeEnd={moment().add(12, 'hour')} - это интервал на текущий месяц
+// 4. const [visibleTimeStart, setVisibleTimeStart] = useState<any>(moment().add(-12, 'hour').valueOf()); const [visibleTimeEnd, setVisibleTimeEnd] = useState<any>(moment().add(12, 'hour').valueOf()); - должно соответсовать интерфалу на текующий месяц
 
 const groups = [
     { id: 1, title: 'Group 1' },
@@ -16,8 +35,16 @@ const items = [
 ];
 
 export const AnalyticsPage = () => {
-    const [visibleTimeStart, setVisibleTimeStart] = useState<any>(moment('2024-01-01').valueOf());
-    const [visibleTimeEnd, setVisibleTimeEnd] = useState<any>(moment('2024-01-30').valueOf());
+    const [getGraph] = useLazyGetGraphOnMonthQuery()
+
+    const [createReport] = useCreateReportMutation()
+    const [getReport] = useLazyGetReportQuery()
+
+    const startOfMonth = moment().startOf('month');
+    const endOfMonth = moment().endOf('month');
+
+    const [visibleTimeStart, setVisibleTimeStart] = useState<any>(startOfMonth.valueOf());
+    const [visibleTimeEnd, setVisibleTimeEnd] = useState<any>(endOfMonth.valueOf());
     const [weeks, setWeeks] = useState<any>([]);
 
     const generateWeekLabels = (start, end) => {
@@ -46,66 +73,106 @@ export const AnalyticsPage = () => {
         generateWeekLabels(visibleTimeStart, visibleTimeEnd);
     }, [visibleTimeStart, visibleTimeEnd]);
 
-    const handleTimeChange = (visibleTimeStart, visibleTimeEnd) => {
-        setVisibleTimeStart(visibleTimeStart);
-        setVisibleTimeEnd(visibleTimeEnd);
+    useEffect(() => {
+        console.log(moment(visibleTimeStart).format('YYYY-MM-DD'))
+        getGraph(moment(visibleTimeStart).format('YYYY-MM-DD'))
+            .unwrap()
+            .then((res) => {
+                console.log(res)
+            })
+        // getGraph()
+    },[])
+
+    const handleGetReport = () => {
+        createReport({
+            date: '2024-06-01'
+        })
+            .unwrap()
+            .then((res) => {
+                setTimeout(() => {
+                    getReport(res.id)
+                        .unwrap()
+                        .then((res) => {
+                            alert(res.link)
+                        })
+                },5000)
+            })
+    }
+
+    const handleTimeChange = (visibleTimeStart, visibleTimeEnd, updateScrollCanvas) => {
+        // Ограничиваем перемещение таймлайна
+        const newVisibleTimeStart = moment.max(moment(visibleTimeStart), startOfMonth).valueOf();
+        const newVisibleTimeEnd = moment.min(moment(visibleTimeEnd), endOfMonth).valueOf();
+
+        setVisibleTimeStart(newVisibleTimeStart);
+        setVisibleTimeEnd(newVisibleTimeEnd);
+
+        if (updateScrollCanvas) {
+            updateScrollCanvas(newVisibleTimeStart, newVisibleTimeEnd);
+        }
     };
 
     return (
-        <div className={'w-full'}>
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '0',
-                    width: 'calc(83% - 150px)',
-                    left: '347px',
-                    height: '40px',
-                    display: 'flex',
-                    zIndex: 999,
-                }}
-            >
-                {weeks.map((week, index) => {
-                    return (
-                        <div
-                            key={index}
-                            className="week-label"
-                            style={{
-                                position: 'absolute',
-                                top: '0',
-                                left: `${((week.start.valueOf() - visibleTimeStart) / (visibleTimeEnd - visibleTimeStart)) * 100}%`,
-                                width: `${((week.end.valueOf() - week.start.valueOf()) / (visibleTimeEnd - visibleTimeStart)) * 100}%`,
-                                height: '40px',
-                                backgroundColor:
-                                    week.status === 'green'
-                                        ? 'rgba(0,255,0,0.3)'
-                                        : week.status === 'yellow'
-                                            ? 'rgba(255,255,0,0.3)'
-                                            : 'rgba(255,0,0,0.3)',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => alert(week.label)}
-                        >
-                            {week.label}
-                        </div>
-                    );
-                })}
+        <div className={'w-[1600px] mx-auto my-[30px] rounded relative'}>
+            <button onClick={handleGetReport} className={'absolute border rounded p-2 left-2 top-2 bg-red-700 text-white cursor-pointer'}>СКАЧАТЬ</button>
+            <div className={'w-[90%] bg-white rounded overflow-hidden'}>
+                <div className={'w-full bg-white relative mt-12'}>
+                    {/*<div*/}
+                    {/*    style={{*/}
+                    {/*        position: 'absolute',*/}
+                    {/*        top: '0',*/}
+                    {/*        width: 'calc(83% - 150px)',*/}
+                    {/*        left: '160px',*/}
+                    {/*        height: '40px',*/}
+                    {/*        display: 'flex',*/}
+                    {/*        zIndex: 999,*/}
+                    {/*    }}*/}
+                    {/*>*/}
+                    {/*    {weeks.map((week, index) => {*/}
+                    {/*        return (*/}
+                    {/*            <div*/}
+                    {/*                key={index}*/}
+                    {/*                className="week-label"*/}
+                    {/*                style={{*/}
+                    {/*                    position: 'absolute',*/}
+                    {/*                    top: '0',*/}
+                    {/*                    left: `${((week.start.valueOf() - visibleTimeStart) / (visibleTimeEnd - visibleTimeStart)) * 100}%`,*/}
+                    {/*                    width: `${((week.end.valueOf() - week.start.valueOf()) / (visibleTimeEnd - visibleTimeStart)) * 100}%`,*/}
+                    {/*                    height: '40px',*/}
+                    {/*                    backgroundColor:*/}
+                    {/*                        week.status === 'green'*/}
+                    {/*                            ? 'rgba(0,255,0,0.3)'*/}
+                    {/*                            : week.status === 'yellow'*/}
+                    {/*                                ? 'rgba(255,255,0,0.3)'*/}
+                    {/*                                : 'rgba(255,0,0,0.3)',*/}
+                    {/*                    display: 'flex',*/}
+                    {/*                    justifyContent: 'center',*/}
+                    {/*                    alignItems: 'center',*/}
+                    {/*                    cursor: 'pointer',*/}
+                    {/*                }}*/}
+                    {/*                onClick={() => alert(week.label)}*/}
+                    {/*            >*/}
+                    {/*                {week.label}*/}
+                    {/*            </div>*/}
+                    {/*        );*/}
+                    {/*    })}*/}
+                    {/*</div>*/}
+                    <Timeline
+                        groups={groups}
+                        items={items}
+                        defaultTimeStart={moment().add(-12, 'hour')}
+                        defaultTimeEnd={moment().add(12, 'hour')}
+                        canMove={false}  // Ограничиваем перемещение
+                        canResize={"both"}
+                        stackItems={true}
+                        itemHeightRatio={0.75}
+                        visibleTimeStart={visibleTimeStart}
+                        visibleTimeEnd={visibleTimeEnd}
+                        onTimeChange={handleTimeChange}
+                    />
+                </div>
+
             </div>
-            <Timeline
-                groups={groups}
-                items={items}
-                defaultTimeStart={moment().add(-12, 'hour')}
-                defaultTimeEnd={moment().add(12, 'hour')}
-                canMove={true}
-                canResize={"both"}
-                stackItems={true}
-                itemHeightRatio={0.75}
-                visibleTimeStart={visibleTimeStart}
-                visibleTimeEnd={visibleTimeEnd}
-                onTimeChange={handleTimeChange}
-            />
         </div>
     );
 };

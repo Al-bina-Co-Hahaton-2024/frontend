@@ -11,7 +11,13 @@
 .react-calendar-timeline .rct-header-root {
     background-color: #fff;
     border-bottom: none;
+
+    border-radius: 20px;
 }
+
+/*rct-header-root~div {*/
+/*    width: 200px !important;*/
+/*}*/
 
 .react-calendar-timeline .rct-dateHeader {
     border: none;
@@ -41,15 +47,12 @@
     color: black;
 }
 
-.rct-sidebar-row .rct-sidebar-row-even {
-    line-height: 0px;
-}
-
 .rct-sidebar {
     border-right: none !important;
     z-index: 7002;
     background: white;
     border-radius: 8px;
+    width: 150px !important;
 }
 
 .weekend {
@@ -177,14 +180,6 @@
     height: 63px !important;
 }
 
-.rct-sidebar {
-    width: 350px !important;
-}
-
-.rct-sidebar>div {
-    width: 350px !important;
-}
-
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
     background-color: white;
 }
@@ -216,6 +211,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.rct-sidebar-row {
+    border: 1px solid #DADADA !important;
+    /*height: 100px !important;*/
 }
 
 /* цвет таблицы */

@@ -47,6 +47,9 @@ export const AnalyticsPage = () => {
     const [visibleTimeEnd, setVisibleTimeEnd] = useState<any>(endOfMonth.valueOf());
     const [weeks, setWeeks] = useState<any>([]);
 
+    const [groupsTimeline, setGroupsTimeline] = useState<null | any[]>(null)
+    const [itemsTimeline, setItemsTimeline] = useState<null | any[]>(null)
+
     const generateWeekLabels = (start, end) => {
         const weeks: any = [];
         let currentWeek = moment(start).startOf('isoWeek');
@@ -89,6 +92,7 @@ export const AnalyticsPage = () => {
         getGraph(moment(visibleTimeStart).format('YYYY-MM-DD'))
             .unwrap()
             .then((res) => {
+                // const tmpGroups = res.map((element))
                 console.log(res)
             })
         // getGraph()
@@ -106,7 +110,7 @@ export const AnalyticsPage = () => {
                         .then((res) => {
                             window.location.href = res.link
                         })
-                },5000)
+                },1000)
             })
     }
 

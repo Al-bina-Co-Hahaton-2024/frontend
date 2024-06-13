@@ -61,85 +61,89 @@ export const AnalyticsPage = () => {
     }, [visibleTimeStart, visibleTimeEnd]);
 
     useEffect(() => {
-        getGraph(moment(visibleTimeStart).format('YYYY-MM-DD'))
+
+
+        const weeksDates: any = []
+        let monthStart = visibleTimeStart
+
+        for (let i = 0; i <= 4; i++) {
+            let tmp = moment(monthStart).add(1, 'week').format('YYYY-MM-DD')
+            monthStart = tmp
+            weeksDates.push(tmp)
+        }
+
+        weeksDates.unshift(moment(visibleTimeStart).format('YYYY-MM-DD'))
+        weekNums(weeksDates)
             .unwrap()
-            .then((res) => {
-                // @ts-ignore
-                const docIds = [...new Set(res.map((element) => element.doctors).flat().map((doc) => doc.doctorId))];
+            .then(weekRes => {
 
-                docsCard(docIds)
+                //Мап для анализа
+                const analysisWeeks: any = []
+
+                weekRes?.forEach((element) => {
+                    const obj = {
+                        year: String(moment(element.startDate).year()),
+                        week: element.weekNumber
+                    }
+
+                    analysisWeeks.push(obj)
+                })
+
+                setVisibleTimeStart(moment(weekRes[0].startDate).valueOf())
+                setVisibleTimeEnd(moment(weekRes[weekRes.length -1].endDate).add(1, 'week').valueOf())
+
+                //Анализ
+                weekAnalysis(analysisWeeks)
                     .unwrap()
-                    .then(doctors => {
-                        docsFio(docIds)
+                    .then(analysis => {
+
+
+                        const mergeWeeks = weekRes.map((el) => {
+                            const foundedObj = analysis.find(element => element.weekNumber === el.weekNumber)
+                            return {
+                                ...el,
+                                ...foundedObj
+                            }
+                        })
+
+                        getGraph(moment(visibleTimeStart).add(2,'weeks').format('YYYY-MM-DD'))
                             .unwrap()
-                            .then(fio => {
-                                const docsGroups = doctors.map((element) => {
-                                    const foundedElement = fio.find((el) => el.id === element.id);
-                                    return {
-                                        ...element,
-                                        ...foundedElement
-                                    };
-                                });
-                                const tmpItems = res.map((element) => {
-                                    return element.doctors.map((doc) => ({
-                                        id: uuidv4(),
-                                        group: doc.doctorId,
-                                        start_time: moment(`${element.date}T05:00:00`).valueOf(),
-                                        end_time: moment(`${element.date}T20:59:00`).valueOf()
-                                    }));
-                                }).flat();
-
-                                setGroupsTimeline(docsGroups);
-                                setItemsTimeline(tmpItems);
-                                const weeksDates: any = []
-                                let monthStart = visibleTimeStart
-
-                                for (let i = 0; i <= 4; i++) {
-                                    let tmp = moment(monthStart).add(1, 'week').format('YYYY-MM-DD')
-                                    monthStart = tmp
-                                    weeksDates.push(tmp)
-                                }
-                                weeksDates.unshift(moment(visibleTimeStart).format('YYYY-MM-DD'))
-                                //НЕДЕЛИ
-                                weekNums(weeksDates)
+                            .then((res) => {
+                                // @ts-ignore
+                                const docIds = [...new Set(res.map((element) => element.doctorSchedules).flat().map((doc) => doc.doctorId))];
+                                docsCard(docIds)
                                     .unwrap()
-                                    .then(weekRes => {
-                                        // console.log(weekRes)
-                                        const analysisWeeks: any = []
-
-                                        weekRes?.forEach((element) => {
-                                            const obj = {
-                                                year: String(moment(element.startDate).year()),
-                                                week: element.weekNumber
-                                            }
-
-                                            analysisWeeks.push(obj)
-                                        })
-
-                                        weekAnalysis(analysisWeeks)
+                                    .then(doctors => {
+                                        docsFio(docIds)
                                             .unwrap()
-                                            .then(analysis => {
-                                                // console.log(analysis)
+                                            .then(fio => {
 
-                                                const mergeWeeks = weekRes.map((el) => {
-                                                    const foundedObj = analysis.find(element => element.weekNumber === el.weekNumber)
+                                                const docsGroups = doctors.map((element) => {
+                                                    const foundedElement = fio.find((el) => el.id === element.id);
                                                     return {
-                                                       ...el,
-                                                       ...foundedObj
-                                                    }
-                                                })
+                                                        ...element,
+                                                        ...foundedElement
+                                                    };
+                                                });
+                                                const tmpItems = res.map((element) => {
+                                                    return element.doctorSchedules.map((doc) => ({
+                                                        id: uuidv4(),
+                                                        group: doc.doctorId,
+                                                        start_time: moment(`${element.date}T05:00:00`).valueOf(),
+                                                        end_time: moment(`${element.date}T20:59:00`).valueOf()
+                                                    }));
+                                                }).flat();
 
-                                                // setWeeks(mergeWeeks)
+                                                setGroupsTimeline(docsGroups);
+                                                setItemsTimeline(tmpItems);
 
-                                                console.log(weekRes[0].startDate)
-                                                setVisibleTimeStart(moment(weekRes[0].startDate).valueOf())
-                                                setVisibleTimeEnd(moment(weekRes[weekRes.length -1].endDate).add(1, 'week').valueOf())
                                             })
                                     })
-                                console.log(weeksDates)
-                            });
-                    });
-            });
+                            })
+                    })
+
+            })
+
     }, [getGraph, visibleTimeStart]);
 
     const handleGetReport = () => {

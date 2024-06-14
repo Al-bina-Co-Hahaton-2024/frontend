@@ -20,6 +20,7 @@ import {
 import { DocGroups } from './groups';
 import acceptance_report from '../../assets/acceptance_report.svg';
 import warning_report from '../../assets/warning_report.svg';
+import generator from '../../assets/generator.svg';
 
 export const AnalyticsPage = () => {
   const [docsCard] = useGetDoctorsByIdsMutation();
@@ -89,7 +90,6 @@ export const AnalyticsPage = () => {
                 ...foundedObj,
               };
             });
-            console.log(mergeWeeks);
             setWeeks(
               mergeWeeks.map((week) => ({
                 weekNumber: week.weekNumber,
@@ -252,7 +252,37 @@ export const AnalyticsPage = () => {
       </div>
     );
   };
+  const months = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
+  ];
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
+  const handlePreviousMonth = () => {
+    setCurrentMonth((prev) => (prev === 0 ? 11 : prev - 1));
+    if (currentMonth === 0) {
+      setCurrentYear((prev) => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth((prev) => (prev === 11 ? 0 : prev + 1));
+    if (currentMonth === 11) {
+      setCurrentYear((prev) => prev + 1);
+    }
+  };
+  if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
     <div
       className={'w-[1700px] flex gap-[2px] mx-auto my-[30px] rounded relative'}
@@ -266,13 +296,26 @@ export const AnalyticsPage = () => {
         СКАЧАТЬ
       </button>
 
+      <div className="w-full max-w-md mx-auto mt-5 absolute  z-[9999] left-[35%] -top-[10px]">
+        <div className="flex justify-between items-center">
+          <button onClick={handlePreviousMonth} className="text-lg">
+            &lt;
+          </button>
+          <div className="text-lg">
+            {months[currentMonth]} {currentYear}
+          </div>
+          <button onClick={handleNextMonth} className="text-lg">
+            &gt;
+          </button>
+        </div>
+      </div>
+
       <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
         <div className={'w-full bg-white mt-12'}>
           <div className="relative -top-10 z-[1000] translate-x-[350px]">
             {weeks.map((week, index) => {
-              const weekWidth = 26 * 7;
-              const left = 184 * index;
-              console.log(week);
+              const weekWidth = 26.413 * 7;
+              const left = 187.4 * index;
               return (
                 <div
                   key={index}
@@ -294,6 +337,10 @@ export const AnalyticsPage = () => {
                     alignItems: 'center',
                     cursor: 'pointer',
                     zIndex: '1',
+                    borderTopLeftRadius: '10px',
+                    borderTopRightRadius: '10px',
+                    // borderRight: '1px solid gray',
+                    // borderLeft: '1px solid gray',
                     // border: '1px solid black', // Добавляем границу для визуальной отладки
                   }}
                   onClick={() => setReport(week)}
@@ -367,7 +414,7 @@ export const AnalyticsPage = () => {
                 </div>
               </div>
 
-              <div className={'flex flex-col px-[20px] mt-[20px] '}>
+              <div className={'flex flex-col gap-[10px] px-[20px] mt-[20px] '}>
                 {translateModality(report.workloads).map((element) => (
                   <div className={'flex flex-col'}>
                     <div className={'flex items-center gap-[5px]'}>
@@ -387,18 +434,34 @@ export const AnalyticsPage = () => {
                           10,
                           Math.floor((element.work / element.workload) * 10)
                         ),
-                      }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="bg-red-700 w-[10px] h-[10px] grow"
-                        ></div>
-                      ))}
+                      }).map((_, index) => {
+                        const els = Math.floor(
+                          (element.work / element.workload) * 10
+                        );
+                        return (
+                          <div
+                            key={index}
+                            className={`${els >= 10 && 'bg-green-600'} ${els < 10 && els > 5 && 'bg-orange-600'} ${els <= 5 && 'bg-red-600'} w-[10px] h-[10px] grow`}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
+        </div>
+        <div
+          className={
+            'flex flex-col mt-[20px] bg-white justify-center items-center p-5'
+          }
+        >
+          <img
+            className={'w-[150px] h-[170px] cursor-pointer hover:opacity-50'}
+            src={generator}
+            alt={'generate graph'}
+          />
         </div>
       </div>
     </div>

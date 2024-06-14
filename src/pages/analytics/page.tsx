@@ -18,6 +18,8 @@ import {
   useGetFioDocsByIdMutation,
 } from '../../store/api/doctors/doctorsApi';
 import { DocGroups } from './groups';
+import acceptance_report from '../../assets/acceptance_report.svg';
+import warning_report from '../../assets/warning_report.svg';
 
 export const AnalyticsPage = () => {
   const [docsCard] = useGetDoctorsByIdsMutation();
@@ -128,7 +130,8 @@ export const AnalyticsPage = () => {
               mergeWeeks.map((week) => ({
                 start: moment(week.startDate),
                 end: moment(week.endDate),
-                status: getStatus(week.workloads),
+                workloads: week.workloads,
+                status: getStatus(week.workloads, week.actual),
                 label: `Неделя ${moment(week.startDate).format('DD.MM')} по ${moment(week.endDate).format('DD.MM')}`,
               }))
             );
@@ -202,36 +205,16 @@ export const AnalyticsPage = () => {
       });
   };
 
-  const getStatus = (workloads) => {
-    // Пример логики для определения статуса недели
-    // Здесь можно применить любую логику на основе данных о нагрузках
-    const totalWorkload = workloads.reduce((sum, w) => sum + w.workload, 0);
-    if (totalWorkload > 50000) {
-      return 'green';
-    } else if (totalWorkload > 20000) {
-      return 'yellow';
-    } else {
-      return 'red';
+  const getStatus = (workloads, actual) => {
+    if (!actual) {
+      return 'gray';
     }
-  };
-
-  const handleTimeChange = (
-    visibleTimeStart,
-    visibleTimeEnd,
-    updateScrollCanvas
-  ) => {
-    const newVisibleTimeStart = moment
-      .max(moment(visibleTimeStart), startOfMonth)
-      .valueOf();
-    const newVisibleTimeEnd = moment
-      .min(moment(visibleTimeEnd), endOfMonth)
-      .valueOf();
-
-    setVisibleTimeStart(newVisibleTimeStart);
-    setVisibleTimeEnd(newVisibleTimeEnd);
-
-    if (updateScrollCanvas) {
-      updateScrollCanvas(newVisibleTimeStart, newVisibleTimeEnd);
+    const totalWorkload = workloads.reduce((sum, w) => sum + w.hoursNeed, 0);
+    if (totalWorkload > 0) {
+      return 'yellow';
+    }
+    if (totalWorkload === 0) {
+      return 'green';
     }
   };
 
@@ -268,7 +251,7 @@ export const AnalyticsPage = () => {
       <button
         onClick={handleGetReport}
         className={
-          'absolute border rounded p-2 left-2 top-2 bg-red-700 text-white cursor-pointer'
+          'absolute border rounded p-2 left-2 top-2 bg-red-700 text-white cursor-pointer z-[9999]'
         }
       >
         СКАЧАТЬ
@@ -276,25 +259,8 @@ export const AnalyticsPage = () => {
 
       <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
         <div className={'w-full bg-white mt-12'}>
-          <div className="relative -top-10 z-[9999] translate-x-[350px]">
+          <div className="relative -top-10 z-[1000] translate-x-[350px]">
             {weeks.map((week, index) => {
-              // Ограничиваем начало и конец недели видимыми границами
-              // const weekStartValue = Math.max(
-              //   week.start.valueOf(),
-              //   visibleTimeStart
-              // );
-              // const weekEndValue = Math.min(week.end.valueOf(), visibleTimeEnd);
-
-              // Вычисляем проценты для позиций и ширины
-              // const weekStartPercent =
-              //   ((weekStartValue - visibleTimeStart) /
-              //     (visibleTimeEnd - visibleTimeStart)) *
-              //   100;
-              // const weekWidthPercent =
-              //   ((weekEndValue - weekStartValue) /
-              //     (visibleTimeEnd - visibleTimeStart)) *
-              //   100;
-
               const weekWidth = 26 * 7;
               const left = 184 * index;
 
@@ -307,23 +273,40 @@ export const AnalyticsPage = () => {
                     top: '40px',
                     left: `${left}px`, // Точное смещение влево
                     width: `${weekWidth}px`, // Точное расширение ширины
-                    height: '40px',
+                    height: '60px',
                     backgroundColor:
                       week.status === 'green'
-                        ? 'rgba(0,255,0,0.3)'
+                        ? 'rgba(79, 222, 119, 0.3)'
                         : week.status === 'yellow'
-                          ? 'rgba(255,255,0,0.3)'
-                          : 'rgba(255,0,0,0.3)',
+                          ? 'rgba(255, 168, 66, 0.3)'
+                          : 'rgba(128, 128, 128, 0.3)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     cursor: 'pointer',
-                    zIndex: '9999',
-                    border: '1px solid black', // Добавляем границу для визуальной отладки
+                    zIndex: '1',
+                    // border: '1px solid black', // Добавляем границу для визуальной отладки
                   }}
                   onClick={() => alert(week.label)}
                 >
-                  {week.label}
+                  <div
+                    className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
+                  >
+                    <div className={'w-[16px] h-[16px]'}>
+                      {week.status === 'green' && (
+                        <img src={acceptance_report} alt={'acc'} />
+                      )}
+                      {week.status === 'yellow' && (
+                        <img src={warning_report} alt={'warning'} />
+                      )}
+                      {week.status === 'gray' && (
+                        <img src={warning_report} alt={'null'} />
+                      )}
+                    </div>
+                    <div className={'font-[600] text-[18px] text-white'}>
+                      Смотреть отчёт
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -341,6 +324,8 @@ export const AnalyticsPage = () => {
               groupRenderer={DocGroups}
               itemRenderer={customItemRenderer}
               lineHeight={100}
+              onTimeChange={() => {}}
+              onBoundsChange={() => {}}
             />
           )}
         </div>

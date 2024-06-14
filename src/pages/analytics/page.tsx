@@ -46,36 +46,7 @@ export const AnalyticsPage = () => {
   const [groupsTimeline, setGroupsTimeline] = useState<null | any[]>(null);
   const [itemsTimeline, setItemsTimeline] = useState<null | any[]>(null);
 
-  // const generateWeekLabels = (start, end) => {
-  //   const weeks: any = [];
-  //   let currentWeek = moment(start).startOf('isoWeek');
-  //
-  //   while (currentWeek.isBefore(end)) {
-  //     const weekStart = currentWeek.clone();
-  //     const weekEnd = currentWeek.clone().endOf('isoWeek');
-  //     const status =
-  //       Math.random() > 0.4
-  //         ? Math.random() > 0.5
-  //           ? 'green'
-  //           : 'yellow'
-  //         : 'red';
-  //
-  //     weeks.push({
-  //       start: weekStart,
-  //       end: weekEnd,
-  //       status,
-  //       label: `Неделя ${weekStart.format('DD.MM')} по ${weekEnd.format('DD.MM')}`,
-  //     });
-  //
-  //     currentWeek.add(1, 'week');
-  //   }
-  //
-  //   setWeeks(weeks);
-  // };
-  //
-  // useEffect(() => {
-  //   generateWeekLabels(visibleTimeStart, visibleTimeEnd);
-  // }, [visibleTimeStart, visibleTimeEnd]);
+  const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
     const weeksDates: any = [];
@@ -104,11 +75,6 @@ export const AnalyticsPage = () => {
         });
 
         setVisibleTimeStart(moment(weekRes[0].startDate).valueOf());
-        // setVisibleTimeEnd(
-        //   moment(weekRes[weekRes.length - 1].endDate)
-        //     .add(2, 'weeks')
-        //     .valueOf()
-        // );
 
         //Анализ
         weekAnalysis(analysisWeeks)
@@ -123,11 +89,10 @@ export const AnalyticsPage = () => {
                 ...foundedObj,
               };
             });
-
             console.log(mergeWeeks);
-
             setWeeks(
               mergeWeeks.map((week) => ({
+                weekNumber: week.weekNumber,
                 start: moment(week.startDate),
                 end: moment(week.endDate),
                 workloads: week.workloads,
@@ -205,6 +170,48 @@ export const AnalyticsPage = () => {
       });
   };
 
+  function translateModality(data) {
+    return data.map((item) => {
+      let translatedModality = item.modality;
+
+      if (item.typeModality === 'U' || item.typeModality === 'U2') {
+        if (item.modality === 'KT') {
+          translatedModality = `КТ${item.typeModality}`;
+        } else if (item.modality === 'MRT') {
+          translatedModality = `МРТ${item.typeModality}`;
+        }
+      } else {
+        switch (item.modality) {
+          case 'MRT':
+            translatedModality = 'МРТ';
+            break;
+          case 'KT':
+            translatedModality = 'КТ';
+            break;
+          case 'RG':
+            translatedModality = 'РГ';
+            break;
+          case 'DENSITOMETER':
+            translatedModality = 'Денситометр';
+            break;
+          case 'FLG':
+            translatedModality = 'ФЛГ';
+            break;
+          case 'MMG':
+            translatedModality = 'ММГ';
+            break;
+          default:
+            break;
+        }
+      }
+
+      return {
+        ...item,
+        modality: translatedModality,
+      };
+    });
+  }
+
   const getStatus = (workloads, actual) => {
     if (!actual) {
       return 'gray';
@@ -247,7 +254,9 @@ export const AnalyticsPage = () => {
   };
 
   return (
-    <div className={'w-[1600px] mx-auto my-[30px] rounded relative'}>
+    <div
+      className={'w-[1700px] flex gap-[2px] mx-auto my-[30px] rounded relative'}
+    >
       <button
         onClick={handleGetReport}
         className={
@@ -263,7 +272,7 @@ export const AnalyticsPage = () => {
             {weeks.map((week, index) => {
               const weekWidth = 26 * 7;
               const left = 184 * index;
-
+              console.log(week);
               return (
                 <div
                   key={index}
@@ -287,7 +296,7 @@ export const AnalyticsPage = () => {
                     zIndex: '1',
                     // border: '1px solid black', // Добавляем границу для визуальной отладки
                   }}
-                  onClick={() => alert(week.label)}
+                  onClick={() => setReport(week)}
                 >
                   <div
                     className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
@@ -327,6 +336,68 @@ export const AnalyticsPage = () => {
               onTimeChange={() => {}}
               onBoundsChange={() => {}}
             />
+          )}
+        </div>
+      </div>
+      <div
+        className={
+          'z-10  flex flex-col w-[15%] rounded-tr-[20px] rounded-br-[20px] overflow-hidden'
+        }
+      >
+        <div
+          className={` h-[80%] rounded-br-[20px] bg-white flex flex-col ${report ? '' : 'justify-center'}`}
+        >
+          {!report && (
+            <span
+              className={'text-[#00000033] text-center font-[600] text-[18px]'}
+            >
+              Нажмите «Смотреть отчёт», чтобы увидеть данные...
+            </span>
+          )}
+          {report && (
+            <div className={'flex flex-col '}>
+              <div
+                className={`flex flex-col p-[20px] h-[80px] rounded-tr-[20px] ${report.status === 'green' && 'bg-[#4FDE77]'} ${report.status === 'yellow' && 'bg-[#FFA842]'} ${report.status === 'gray' && 'bg-black'} m-[1px]`}
+              >
+                <div className={' font-[700] text-[18px] text-white'}>
+                  Отчёт
+                </div>
+                <div className={'font-[600] text-[14px] text-white'}>
+                  Неделеля № {report.weekNumber}
+                </div>
+              </div>
+
+              <div className={'flex flex-col px-[20px] mt-[20px] '}>
+                {translateModality(report.workloads).map((element) => (
+                  <div className={'flex flex-col'}>
+                    <div className={'flex items-center gap-[5px]'}>
+                      <div className={'w-[80px] text-[18px] overflow-hidden'}>
+                        {element.modality}
+                      </div>
+                      <div>-</div>
+                      <div className={'text-[14px] font-bold'}>
+                        {element.work} / {element.workload}
+                      </div>
+                    </div>
+                    <div
+                      className={'flex items-center gap-[2px] justify-between'}
+                    >
+                      {Array.from({
+                        length: Math.min(
+                          10,
+                          Math.floor((element.work / element.workload) * 10)
+                        ),
+                      }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="bg-red-700 w-[10px] h-[10px] grow"
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>

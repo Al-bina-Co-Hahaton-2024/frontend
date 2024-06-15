@@ -4,6 +4,7 @@ import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
 import '../../styles/calendar.css';
 import {
+  useGenerateCalendarMutation,
   useGetAnalyzesWeeksMutation,
   useLazyGetGraphOnMonthQuery,
   useLazyGetWeekNumsQuery,
@@ -16,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   useGetDoctorsByIdsMutation,
   useGetFioDocsByIdMutation,
+  useLazyGetAllDoctorsQuery,
 } from '../../store/api/doctors/doctorsApi';
 import { DocGroups } from './groups';
 import acceptance_report from '../../assets/acceptance_report.svg';
@@ -32,6 +34,9 @@ export const AnalyticsPage = () => {
 
   const [createReport] = useCreateReportMutation();
   const [getReport] = useLazyGetReportQuery();
+
+  const [getAllDoctors] = useLazyGetAllDoctorsQuery();
+  const [generateGraph] = useGenerateCalendarMutation();
 
   const startOfMonth = moment().startOf('month');
   const endOfMonth = moment().endOf('month').add(14, 'days');
@@ -100,54 +105,46 @@ export const AnalyticsPage = () => {
                 label: `Неделя ${moment(week.startDate).format('DD.MM')} по ${moment(week.endDate).format('DD.MM')}`,
               }))
             );
-
-            getGraph(
-              moment(visibleTimeStart).add(2, 'weeks').format('YYYY-MM-DD')
-            )
+            getAllDoctors({})
               .unwrap()
-              .then((res) => {
-                const docIds = [
-                  // @ts-ignore
-                  ...new Set(
-                    res
-                      .map((element) => element.doctorSchedules)
-                      .flat()
-                      .map((doc) => doc.doctorId)
-                  ),
-                ];
-                docsCard(docIds)
+              .then((allDoctors) => {
+                const ids = allDoctors.map((el) => el.id);
+                docsFio(ids)
                   .unwrap()
-                  .then((doctors) => {
-                    docsFio(docIds)
-                      .unwrap()
-                      .then((fio) => {
-                        const docsGroups = doctors.map((element) => {
-                          const foundedElement = fio.find(
-                            (el) => el.id === element.id
-                          );
-                          return {
-                            ...element,
-                            ...foundedElement,
-                          };
-                        });
-                        const tmpItems = res
-                          .map((element) => {
-                            return element.doctorSchedules.map((doc) => ({
-                              id: uuidv4(),
-                              group: doc.doctorId,
-                              start_time: moment(
-                                `${element.date}T05:00:00`
-                              ).valueOf(),
-                              end_time: moment(
-                                `${element.date}T20:59:00`
-                              ).valueOf(),
-                            }));
-                          })
-                          .flat();
+                  .then((fio) => {
+                    const docsGroups = allDoctors.map((element) => {
+                      const foundedElement = fio.find(
+                        (el) => el.id === element.id
+                      );
+                      return {
+                        ...element,
+                        ...foundedElement,
+                      };
+                    });
+                    setGroupsTimeline(docsGroups);
+                  });
 
-                        setGroupsTimeline(docsGroups);
-                        setItemsTimeline(tmpItems);
-                      });
+                getGraph(
+                  moment(visibleTimeStart).add(2, 'weeks').format('YYYY-MM-DD')
+                )
+                  .unwrap()
+                  .then((res) => {
+                    const tmpItems = res
+                      .map((element) => {
+                        return element.doctorSchedules.map((doc) => ({
+                          id: uuidv4(),
+                          group: doc.doctorId,
+                          start_time: moment(
+                            `${element.date}T05:00:00`
+                          ).valueOf(),
+                          end_time: moment(
+                            `${element.date}T20:59:00`
+                          ).valueOf(),
+                        }));
+                      })
+                      .flat();
+
+                    setItemsTimeline(tmpItems);
                   });
               });
           });
@@ -266,22 +263,58 @@ export const AnalyticsPage = () => {
     'Ноябрь',
     'Декабрь',
   ];
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(moment().month());
+  const [currentYear, setCurrentYear] = useState(moment().year());
 
   const handlePreviousMonth = () => {
-    setCurrentMonth((prev) => (prev === 0 ? 11 : prev - 1));
-    if (currentMonth === 0) {
-      setCurrentYear((prev) => prev - 1);
-    }
+    const newMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const newYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+
+    const newStartOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .startOf('month');
+    const newEndOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .endOf('month')
+      .add(14, 'days');
+    setVisibleTimeStart(newStartOfMonth.valueOf());
+    setVisibleTimeEnd(newEndOfMonth.valueOf());
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth((prev) => (prev === 11 ? 0 : prev + 1));
-    if (currentMonth === 11) {
-      setCurrentYear((prev) => prev + 1);
-    }
+    const newMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+    const newYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+
+    const newStartOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .startOf('month');
+    const newEndOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .endOf('month')
+      .add(14, 'days');
+    setVisibleTimeStart(newStartOfMonth.valueOf());
+    setVisibleTimeEnd(newEndOfMonth.valueOf());
   };
+
+  const handleGenerateGraph = () => {
+    generateGraph({
+      workScheduleDate: moment(visibleTimeStart).format('YYYY-MM-DD'),
+    })
+      .unwrap()
+      .then(() =>
+        setVisibleTimeStart(moment(visibleTimeStart).add(1, 'day').valueOf())
+      )
+      .catch(() => {});
+  };
+
   if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
     <div
@@ -458,6 +491,7 @@ export const AnalyticsPage = () => {
           }
         >
           <img
+            onClick={handleGenerateGraph}
             className={'w-[150px] h-[170px] cursor-pointer hover:opacity-50'}
             src={generator}
             alt={'generate graph'}

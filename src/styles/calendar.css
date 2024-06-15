@@ -125,7 +125,7 @@
     height: 100px !important; /* Ensure item height matches group row height */
     font-size: 14px !important;
     font-weight: 400 !important;
-    color: #757575 !important;
+    /*color: #757575 !important;*/
     line-height: 15.68px;
     overflow: hidden !important;
     text-align: left !important;

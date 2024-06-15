@@ -135,14 +135,31 @@ export const AnalyticsPage = () => {
                 )
                   .unwrap()
                   .then((res) => {
+                    const mergeWeeks = weekRes.map((el) => {
+                      const foundedObj = analysis.find(
+                        (element) => element.weekNumber === el.weekNumber
+                      );
+                      return {
+                        ...el,
+                        ...foundedObj,
+                      };
+                    });
+
                     const tmpItems = res
                       .map((element) => {
+                        const weekStatus = mergeWeeks.find(
+                          (el) => el.weekNumber === element.weekNumber
+                        );
                         return element.doctorSchedules.map((doc) => ({
                           id: uuidv4(),
                           group: doc.doctorId,
                           start_time: moment(
                             `${element.date}T05:00:00`
                           ).valueOf(),
+                          status: getStatus(
+                            weekStatus.workloads,
+                            weekStatus.actual
+                          ),
                           end_time: moment(
                             `${element.date}T20:59:00`
                           ).valueOf(),
@@ -150,6 +167,8 @@ export const AnalyticsPage = () => {
                         }));
                       })
                       .flat();
+
+                    console.log(tmpItems);
 
                     setItemsTimeline(tmpItems);
                   });

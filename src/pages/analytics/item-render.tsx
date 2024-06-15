@@ -3,6 +3,7 @@ import { TooltipPortal } from './tooltip-portal';
 import { useGetToolTipModalityMutation } from '../../store/api/schedule/planer';
 import { translateModality } from '../../utils/transform';
 import { ModalPortal } from './moda-portal';
+import zamok from '../../assets/zamok.svg';
 
 export const DocItem = ({
   item,
@@ -43,8 +44,10 @@ export const DocItem = ({
   const handleMouseLeave = () => {
     setIsTooltipVisible(false);
   };
+  const privateExtras = item.manualExtraHours > 0;
 
   const handleClick = (e) => {
+    if (privateExtras) return;
     const rect = e.target.getBoundingClientRect();
     setIsTooltipVisible(false);
     setModalPosition({
@@ -54,12 +57,13 @@ export const DocItem = ({
     setModalVisible(true);
   };
 
+  const className = `${item.status === 'yellow' && '!bg-[#FFA842]'} ${item.status === 'green' && '!bg-[#4FDE77]'} ${item.status === 'gray' && '!bg-black'} ${privateExtras && '!bg-[#FFA842] opacity-60'}`;
+
   return (
     <>
       <div
         {...getItemProps({
           style: {
-            background: 'blue',
             color: 'white',
             borderRadius: 4,
             border: '1px solid blue',
@@ -67,6 +71,7 @@ export const DocItem = ({
             lineHeight: 'normal',
             position: 'relative',
           },
+          className,
         })}
         onClick={handleClick}
       >
@@ -75,7 +80,13 @@ export const DocItem = ({
           onMouseLeave={handleMouseLeave}
           className="rct-item-Azs"
         >
-          {/* Основной контент */}
+          {privateExtras && (
+            <img
+              className={'absolute top-5  w-[15px] h-[15px]'}
+              src={zamok}
+              alt={'closed'}
+            />
+          )}
         </div>
         {isTooltipVisible && (
           <TooltipPortal>

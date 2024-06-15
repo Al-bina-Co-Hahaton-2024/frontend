@@ -6,6 +6,10 @@
     z-index: 1001 !important;
 }
 
+.rct-dateHeader-primary {
+    transform: translateY(-20px) !important;
+}
+
 .react-calendar-timeline .rct-header-root {
     background-color: #fff;
     border-bottom: none;

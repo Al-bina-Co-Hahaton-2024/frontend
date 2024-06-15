@@ -12,20 +12,32 @@ export const planerApi = baseApi.injectEndpoints({
       query: (dates: string[]) =>
         `/reference/week-numbers?dates=${dates.join(',')}`,
     }),
+
     getWorkload: builder.mutation({
       query: (body) => {
         return {
-          url: `/reference/workloads/years/${body.year}/calculate`,
-          method: 'POST',
-          body,
-        };
-      },
+           url: `/reference/workloads/years/${body.year}/calculate`,
+           method: 'POST',
+            body,
+        }
+      }
     }),
     //АНАЛИТИКА ПО НЕДЕЛЯМ
     getAnalyzesWeeks: builder.mutation({
       query: (body) => {
         return {
           url: `/planner/analyzes/find`,
+
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    //Генерация календаря
+    generateCalendar: builder.mutation({
+      query: (body) => {
+        return {
+          url: '/planner/work-schedules/generate',
           method: 'POST',
           body,
         };
@@ -38,7 +50,10 @@ export const {
   useGetAnalyzesWeeksMutation,
   useGetGraphOnMonthQuery,
   useGetWeekNumsQuery,
+
   useGetWorkloadMutation,
-  useLazyGetGraphOnMonthQuery,
   useLazyGetWeekNumsQuery,
+
+  useLazyGetGraphOnMonthQuery,
+  useGenerateCalendarMutation,
 } = planerApi;

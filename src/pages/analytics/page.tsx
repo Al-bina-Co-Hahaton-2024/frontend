@@ -4,6 +4,7 @@ import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
 import '../../styles/calendar.css';
 import {
+  useGenerateCalendarMutation,
   useGetAnalyzesWeeksMutation,
   useLazyGetGraphOnMonthQuery,
   useLazyGetWeekNumsQuery,
@@ -16,10 +17,12 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   useGetDoctorsByIdsMutation,
   useGetFioDocsByIdMutation,
+  useLazyGetAllDoctorsQuery,
 } from '../../store/api/doctors/doctorsApi';
 import { DocGroups } from './groups';
 import acceptance_report from '../../assets/acceptance_report.svg';
 import warning_report from '../../assets/warning_report.svg';
+import generator from '../../assets/generator.svg';
 
 export const AnalyticsPage = () => {
   const [docsCard] = useGetDoctorsByIdsMutation();
@@ -31,6 +34,9 @@ export const AnalyticsPage = () => {
 
   const [createReport] = useCreateReportMutation();
   const [getReport] = useLazyGetReportQuery();
+
+  const [getAllDoctors] = useLazyGetAllDoctorsQuery();
+  const [generateGraph] = useGenerateCalendarMutation();
 
   const startOfMonth = moment().startOf('month');
   const endOfMonth = moment().endOf('month').add(14, 'days');
@@ -46,36 +52,7 @@ export const AnalyticsPage = () => {
   const [groupsTimeline, setGroupsTimeline] = useState<null | any[]>(null);
   const [itemsTimeline, setItemsTimeline] = useState<null | any[]>(null);
 
-  // const generateWeekLabels = (start, end) => {
-  //   const weeks: any = [];
-  //   let currentWeek = moment(start).startOf('isoWeek');
-  //
-  //   while (currentWeek.isBefore(end)) {
-  //     const weekStart = currentWeek.clone();
-  //     const weekEnd = currentWeek.clone().endOf('isoWeek');
-  //     const status =
-  //       Math.random() > 0.4
-  //         ? Math.random() > 0.5
-  //           ? 'green'
-  //           : 'yellow'
-  //         : 'red';
-  //
-  //     weeks.push({
-  //       start: weekStart,
-  //       end: weekEnd,
-  //       status,
-  //       label: `Неделя ${weekStart.format('DD.MM')} по ${weekEnd.format('DD.MM')}`,
-  //     });
-  //
-  //     currentWeek.add(1, 'week');
-  //   }
-  //
-  //   setWeeks(weeks);
-  // };
-  //
-  // useEffect(() => {
-  //   generateWeekLabels(visibleTimeStart, visibleTimeEnd);
-  // }, [visibleTimeStart, visibleTimeEnd]);
+  const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
     const weeksDates: any = [];
@@ -104,11 +81,6 @@ export const AnalyticsPage = () => {
         });
 
         setVisibleTimeStart(moment(weekRes[0].startDate).valueOf());
-        // setVisibleTimeEnd(
-        //   moment(weekRes[weekRes.length - 1].endDate)
-        //     .add(2, 'weeks')
-        //     .valueOf()
-        // );
 
         //Анализ
         weekAnalysis(analysisWeeks)
@@ -123,11 +95,9 @@ export const AnalyticsPage = () => {
                 ...foundedObj,
               };
             });
-
-            console.log(mergeWeeks);
-
             setWeeks(
               mergeWeeks.map((week) => ({
+                weekNumber: week.weekNumber,
                 start: moment(week.startDate),
                 end: moment(week.endDate),
                 workloads: week.workloads,
@@ -135,54 +105,46 @@ export const AnalyticsPage = () => {
                 label: `Неделя ${moment(week.startDate).format('DD.MM')} по ${moment(week.endDate).format('DD.MM')}`,
               }))
             );
-
-            getGraph(
-              moment(visibleTimeStart).add(2, 'weeks').format('YYYY-MM-DD')
-            )
+            getAllDoctors({})
               .unwrap()
-              .then((res) => {
-                const docIds = [
-                  // @ts-ignore
-                  ...new Set(
-                    res
-                      .map((element) => element.doctorSchedules)
-                      .flat()
-                      .map((doc) => doc.doctorId)
-                  ),
-                ];
-                docsCard(docIds)
+              .then((allDoctors) => {
+                const ids = allDoctors.map((el) => el.id);
+                docsFio(ids)
                   .unwrap()
-                  .then((doctors) => {
-                    docsFio(docIds)
-                      .unwrap()
-                      .then((fio) => {
-                        const docsGroups = doctors.map((element) => {
-                          const foundedElement = fio.find(
-                            (el) => el.id === element.id
-                          );
-                          return {
-                            ...element,
-                            ...foundedElement,
-                          };
-                        });
-                        const tmpItems = res
-                          .map((element) => {
-                            return element.doctorSchedules.map((doc) => ({
-                              id: uuidv4(),
-                              group: doc.doctorId,
-                              start_time: moment(
-                                `${element.date}T05:00:00`
-                              ).valueOf(),
-                              end_time: moment(
-                                `${element.date}T20:59:00`
-                              ).valueOf(),
-                            }));
-                          })
-                          .flat();
+                  .then((fio) => {
+                    const docsGroups = allDoctors.map((element) => {
+                      const foundedElement = fio.find(
+                        (el) => el.id === element.id
+                      );
+                      return {
+                        ...element,
+                        ...foundedElement,
+                      };
+                    });
+                    setGroupsTimeline(docsGroups);
+                  });
 
-                        setGroupsTimeline(docsGroups);
-                        setItemsTimeline(tmpItems);
-                      });
+                getGraph(
+                  moment(visibleTimeStart).add(2, 'weeks').format('YYYY-MM-DD')
+                )
+                  .unwrap()
+                  .then((res) => {
+                    const tmpItems = res
+                      .map((element) => {
+                        return element.doctorSchedules.map((doc) => ({
+                          id: uuidv4(),
+                          group: doc.doctorId,
+                          start_time: moment(
+                            `${element.date}T05:00:00`
+                          ).valueOf(),
+                          end_time: moment(
+                            `${element.date}T20:59:00`
+                          ).valueOf(),
+                        }));
+                      })
+                      .flat();
+
+                    setItemsTimeline(tmpItems);
                   });
               });
           });
@@ -204,6 +166,48 @@ export const AnalyticsPage = () => {
         }, 1000);
       });
   };
+
+  function translateModality(data) {
+    return data.map((item) => {
+      let translatedModality = item.modality;
+
+      if (item.typeModality === 'U' || item.typeModality === 'U2') {
+        if (item.modality === 'KT') {
+          translatedModality = `КТ${item.typeModality}`;
+        } else if (item.modality === 'MRT') {
+          translatedModality = `МРТ${item.typeModality}`;
+        }
+      } else {
+        switch (item.modality) {
+          case 'MRT':
+            translatedModality = 'МРТ';
+            break;
+          case 'KT':
+            translatedModality = 'КТ';
+            break;
+          case 'RG':
+            translatedModality = 'РГ';
+            break;
+          case 'DENSITOMETER':
+            translatedModality = 'Денситометр';
+            break;
+          case 'FLG':
+            translatedModality = 'ФЛГ';
+            break;
+          case 'MMG':
+            translatedModality = 'ММГ';
+            break;
+          default:
+            break;
+        }
+      }
+
+      return {
+        ...item,
+        modality: translatedModality,
+      };
+    });
+  }
 
   const getStatus = (workloads, actual) => {
     if (!actual) {
@@ -245,9 +249,77 @@ export const AnalyticsPage = () => {
       </div>
     );
   };
+  const months = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
+  ];
+  const [currentMonth, setCurrentMonth] = useState(moment().month());
+  const [currentYear, setCurrentYear] = useState(moment().year());
 
+  const handlePreviousMonth = () => {
+    const newMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const newYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+
+    const newStartOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .startOf('month');
+    const newEndOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .endOf('month')
+      .add(14, 'days');
+    setVisibleTimeStart(newStartOfMonth.valueOf());
+    setVisibleTimeEnd(newEndOfMonth.valueOf());
+  };
+
+  const handleNextMonth = () => {
+    const newMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+    const newYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+
+    const newStartOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .startOf('month');
+    const newEndOfMonth = moment()
+      .year(newYear)
+      .month(newMonth)
+      .endOf('month')
+      .add(14, 'days');
+    setVisibleTimeStart(newStartOfMonth.valueOf());
+    setVisibleTimeEnd(newEndOfMonth.valueOf());
+  };
+
+  const handleGenerateGraph = () => {
+    generateGraph({
+      workScheduleDate: moment(visibleTimeStart).format('YYYY-MM-DD'),
+    })
+      .unwrap()
+      .then(() =>
+        setVisibleTimeStart(moment(visibleTimeStart).add(1, 'day').valueOf())
+      )
+      .catch(() => {});
+  };
+
+  if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
-    <div className={'w-[1600px] mx-auto my-[30px] rounded relative'}>
+    <div
+      className={'w-[1700px] flex gap-[2px] mx-auto my-[30px] rounded relative'}
+    >
       <button
         onClick={handleGetReport}
         className={
@@ -257,13 +329,26 @@ export const AnalyticsPage = () => {
         СКАЧАТЬ
       </button>
 
+      <div className="w-full max-w-md mx-auto mt-5 absolute  z-[9999] left-[35%] -top-[10px]">
+        <div className="flex justify-between items-center">
+          <button onClick={handlePreviousMonth} className="text-lg">
+            &lt;
+          </button>
+          <div className="text-lg">
+            {months[currentMonth]} {currentYear}
+          </div>
+          <button onClick={handleNextMonth} className="text-lg">
+            &gt;
+          </button>
+        </div>
+      </div>
+
       <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
         <div className={'w-full bg-white mt-12'}>
           <div className="relative -top-10 z-[1000] translate-x-[350px]">
             {weeks.map((week, index) => {
-              const weekWidth = 26 * 7;
-              const left = 184 * index;
-
+              const weekWidth = 26.413 * 7;
+              const left = 187.4 * index;
               return (
                 <div
                   key={index}
@@ -285,9 +370,13 @@ export const AnalyticsPage = () => {
                     alignItems: 'center',
                     cursor: 'pointer',
                     zIndex: '1',
+                    borderTopLeftRadius: '10px',
+                    borderTopRightRadius: '10px',
+                    // borderRight: '1px solid gray',
+                    // borderLeft: '1px solid gray',
                     // border: '1px solid black', // Добавляем границу для визуальной отладки
                   }}
-                  onClick={() => alert(week.label)}
+                  onClick={() => setReport(week)}
                 >
                   <div
                     className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
@@ -328,6 +417,85 @@ export const AnalyticsPage = () => {
               onBoundsChange={() => {}}
             />
           )}
+        </div>
+      </div>
+      <div
+        className={
+          'z-10  flex flex-col w-[15%] rounded-tr-[20px] rounded-br-[20px] overflow-hidden'
+        }
+      >
+        <div
+          className={` h-[80%] rounded-br-[20px] bg-white flex flex-col ${report ? '' : 'justify-center'}`}
+        >
+          {!report && (
+            <span
+              className={'text-[#00000033] text-center font-[600] text-[18px]'}
+            >
+              Нажмите «Смотреть отчёт», чтобы увидеть данные...
+            </span>
+          )}
+          {report && (
+            <div className={'flex flex-col '}>
+              <div
+                className={`flex flex-col p-[20px] h-[80px] rounded-tr-[20px] ${report.status === 'green' && 'bg-[#4FDE77]'} ${report.status === 'yellow' && 'bg-[#FFA842]'} ${report.status === 'gray' && 'bg-black'} m-[1px]`}
+              >
+                <div className={' font-[700] text-[18px] text-white'}>
+                  Отчёт
+                </div>
+                <div className={'font-[600] text-[14px] text-white'}>
+                  Неделеля № {report.weekNumber}
+                </div>
+              </div>
+
+              <div className={'flex flex-col gap-[10px] px-[20px] mt-[20px] '}>
+                {translateModality(report.workloads).map((element) => (
+                  <div className={'flex flex-col'}>
+                    <div className={'flex items-center gap-[5px]'}>
+                      <div className={'w-[80px] text-[18px] overflow-hidden'}>
+                        {element.modality}
+                      </div>
+                      <div>-</div>
+                      <div className={'text-[14px] font-bold'}>
+                        {element.work} / {element.workload}
+                      </div>
+                    </div>
+                    <div
+                      className={'flex items-center gap-[2px] justify-between'}
+                    >
+                      {Array.from({
+                        length: Math.min(
+                          10,
+                          Math.floor((element.work / element.workload) * 10)
+                        ),
+                      }).map((_, index) => {
+                        const els = Math.floor(
+                          (element.work / element.workload) * 10
+                        );
+                        return (
+                          <div
+                            key={index}
+                            className={`${els >= 10 && 'bg-green-600'} ${els < 10 && els > 5 && 'bg-orange-600'} ${els <= 5 && 'bg-red-600'} w-[10px] h-[10px] grow`}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div
+          className={
+            'flex flex-col mt-[20px] bg-white justify-center items-center p-5'
+          }
+        >
+          <img
+            onClick={handleGenerateGraph}
+            className={'w-[150px] h-[170px] cursor-pointer hover:opacity-50'}
+            src={generator}
+            alt={'generate graph'}
+          />
         </div>
       </div>
     </div>

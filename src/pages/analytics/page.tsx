@@ -23,9 +23,13 @@ import { DocGroups } from './groups';
 import acceptance_report from '../../assets/acceptance_report.svg';
 import warning_report from '../../assets/warning_report.svg';
 import generator from '../../assets/generator.svg';
+import download_calendar from '../../assets/download_calendar.svg';
+import black_arrow from '../../assets/black_arrow.svg';
+import { DocItem } from './item-render';
+import { translateModality } from '../../utils/transform';
+import { DocGroupsSearch } from './search';
 
 export const AnalyticsPage = () => {
-  const [docsCard] = useGetDoctorsByIdsMutation();
   const [docsFio] = useGetFioDocsByIdMutation();
 
   const [getGraph] = useLazyGetGraphOnMonthQuery();
@@ -142,6 +146,7 @@ export const AnalyticsPage = () => {
                           end_time: moment(
                             `${element.date}T20:59:00`
                           ).valueOf(),
+                          ...doc,
                         }));
                       })
                       .flat();
@@ -155,7 +160,7 @@ export const AnalyticsPage = () => {
 
   const handleGetReport = () => {
     createReport({
-      date: '2024-06-01',
+      date: `${moment(visibleTimeStart).add(1, 'week').format('YYYY-MM-DD')}`,
     })
       .unwrap()
       .then((res) => {
@@ -163,53 +168,11 @@ export const AnalyticsPage = () => {
           getReport(res.id)
             .unwrap()
             .then((res) => {
-              window.location.href = res.link;
+              window.open(res.link, '_blank');
             });
-        }, 1000);
+        }, 2000);
       });
   };
-
-  function translateModality(data) {
-    return data.map((item) => {
-      let translatedModality = item.modality;
-
-      if (item.typeModality === 'U' || item.typeModality === 'U2') {
-        if (item.modality === 'KT') {
-          translatedModality = `КТ${item.typeModality}`;
-        } else if (item.modality === 'MRT') {
-          translatedModality = `МРТ${item.typeModality}`;
-        }
-      } else {
-        switch (item.modality) {
-          case 'MRT':
-            translatedModality = 'МРТ';
-            break;
-          case 'KT':
-            translatedModality = 'КТ';
-            break;
-          case 'RG':
-            translatedModality = 'РГ';
-            break;
-          case 'DENSITOMETER':
-            translatedModality = 'Денситометр';
-            break;
-          case 'FLG':
-            translatedModality = 'ФЛГ';
-            break;
-          case 'MMG':
-            translatedModality = 'ММГ';
-            break;
-          default:
-            break;
-        }
-      }
-
-      return {
-        ...item,
-        modality: translatedModality,
-      };
-    });
-  }
 
   const getStatus = (workloads, actual) => {
     if (!actual) {
@@ -230,25 +193,13 @@ export const AnalyticsPage = () => {
     getItemProps,
     getResizeProps,
   }) => {
-    const { left: leftResizeProps, right: rightResizeProps } = getResizeProps();
     return (
-      <div
-        {...getItemProps({
-          style: {
-            background: 'blue',
-            color: 'white',
-            borderRadius: 4,
-            border: '1px solid blue',
-            height: '100%',
-            lineHeight: 'normal',
-          },
-        })}
-      >
-        <div
-          className="rct-item-Azs"
-          onClick={() => alert(moment(item.start_time))}
-        ></div>
-      </div>
+      <DocItem
+        item={item}
+        itemContext={itemContext}
+        getItemProps={getItemProps}
+        getResizeProps={getResizeProps}
+      />
     );
   };
   const months = [
@@ -311,7 +262,9 @@ export const AnalyticsPage = () => {
   const handleGenerateGraph = () => {
     setLoading(true);
     generateGraph({
-      workScheduleDate: moment(visibleTimeStart).format('YYYY-MM-DD'),
+      workScheduleDate: moment(visibleTimeStart)
+        .add(1, 'week')
+        .format('YYYY-MM-DD'),
     })
       .unwrap()
       .then(() => {
@@ -320,7 +273,6 @@ export const AnalyticsPage = () => {
       .catch(() => {});
   };
 
-  console.log(loading);
   if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
     <div
@@ -329,22 +281,29 @@ export const AnalyticsPage = () => {
       <button
         onClick={handleGetReport}
         className={
-          'absolute border rounded p-2 left-2 top-2 bg-red-700 text-white cursor-pointer z-[9999]'
+          'absolute border rounded-[10px] py-[5px] px-[30px] left-16 top-2 bg-white text-white cursor-pointer z-[8999] flex items-center gap-[5px] hover:bg-gray-300 transition ease-in-out shadow-lg'
         }
       >
-        СКАЧАТЬ
+        <img src={download_calendar} alt={'download'} />
+        <span className={'font-[600] text-[18px] text-black'}>
+          Скачать табель
+        </span>
       </button>
+      <DocGroupsSearch
+        setGroups={setGroupsTimeline}
+        startDate={moment(visibleTimeStart).add(1, 'week').format('YYYY-MM-DD')}
+      />
 
-      <div className="w-full max-w-md mx-auto mt-5 absolute  z-[9999] left-[35%] -top-[10px]">
+      <div className="w-full max-w-md mx-auto mt-4 absolute  z-[8000] left-[35%] -top-[10px] border rounded-[10px] p-1">
         <div className="flex justify-between items-center">
           <button onClick={handlePreviousMonth} className="text-lg">
-            &lt;
+            <img src={black_arrow} />
           </button>
           <div className="text-lg">
             {months[currentMonth]} {currentYear}
           </div>
-          <button onClick={handleNextMonth} className="text-lg">
-            &gt;
+          <button onClick={handleNextMonth} className="text-lg rotate-[180deg]">
+            <img src={black_arrow} />
           </button>
         </div>
       </div>
@@ -379,9 +338,6 @@ export const AnalyticsPage = () => {
                       zIndex: '1',
                       borderTopLeftRadius: '10px',
                       borderTopRightRadius: '10px',
-                      // borderRight: '1px solid gray',
-                      // borderLeft: '1px solid gray',
-                      // border: '1px solid black', // Добавляем границу для визуальной отладки
                     }}
                     onClick={() => setReport(week)}
                   >

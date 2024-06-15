@@ -16,11 +16,11 @@ export const planerApi = baseApi.injectEndpoints({
     getWorkload: builder.mutation({
       query: (body) => {
         return {
-           url: `/reference/workloads/years/${body.year}/calculate`,
-           method: 'POST',
-            body,
-        }
-      }
+          url: `/reference/workloads/years/${body.year}/calculate`,
+          method: 'POST',
+          body,
+        };
+      },
     }),
     //АНАЛИТИКА ПО НЕДЕЛЯМ
     getAnalyzesWeeks: builder.mutation({
@@ -43,6 +43,26 @@ export const planerApi = baseApi.injectEndpoints({
         };
       },
     }),
+    // Данные для тултипа модальностей УЕ
+    getToolTipModality: builder.mutation({
+      query: (body) => {
+        return {
+          url: '/planner/performance-analyzes/perform',
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    // Поиск по имени в календаре
+    getSearchDocsCalendar: builder.mutation({
+      query: (body) => {
+        return {
+          url: '/planner/work-schedules/find',
+          method: 'POST',
+          body,
+        };
+      },
+    }),
   }),
 });
 
@@ -56,4 +76,6 @@ export const {
 
   useLazyGetGraphOnMonthQuery,
   useGenerateCalendarMutation,
+  useGetToolTipModalityMutation,
+  useGetSearchDocsCalendarMutation,
 } = planerApi;

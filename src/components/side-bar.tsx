@@ -2,6 +2,7 @@ import logo from '../assets/logo_doc.svg';
 import hr from '../assets/hr.svg';
 import anketa from '../assets/anketa.svg';
 import forecast from '../assets/forecast.svg';
+import work_tabel from '../assets/work_tabel.svg';
 import { Link, useLocation } from 'react-router-dom';
 
 export const SideBar = () => {
@@ -53,6 +54,23 @@ export const SideBar = () => {
               />
               <span className={'text-[18px] font-[600] text-center'}>
                 Анализ прогноза
+              </span>
+            </div>
+          </Link>
+        )}
+        {localStorage.getItem('role') === 'manager' && (
+          <Link
+            to={'/analytics'}
+            className={`${location.pathname.includes('analytics') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}
+          >
+            <div className={'flex flex-col items-center'}>
+              <img
+                className={'w-[60px] h-[58px]'}
+                src={work_tabel}
+                alt={'calendar'}
+              />
+              <span className={'text-[18px] font-[600] text-center'}>
+                Рабочий табель
               </span>
             </div>
           </Link>

@@ -108,6 +108,7 @@ export const AnalyticsPage = () => {
                 workloads: week.workloads,
                 status: getStatus(week.workloads, week.actual),
                 label: `Неделя ${moment(week.startDate).format('DD.MM')} по ${moment(week.endDate).format('DD.MM')}`,
+                ...week,
               }))
             );
             getAllDoctors({})
@@ -167,8 +168,6 @@ export const AnalyticsPage = () => {
                         }));
                       })
                       .flat();
-
-                    console.log(tmpItems);
 
                     setItemsTimeline(tmpItems);
                   });
@@ -291,6 +290,8 @@ export const AnalyticsPage = () => {
       })
       .catch(() => {});
   };
+
+  console.log(report);
 
   if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (

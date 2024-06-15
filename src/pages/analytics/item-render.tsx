@@ -18,6 +18,34 @@ export const DocItem = ({
 
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState(null);
+
+  const [selectedModality, setSelectedModality] = useState<any>(null);
+  const [inputValue, setInputValue] = useState<any>('');
+
+  const handleRadioChange = (modality) => {
+    const f = translateModality(modalData).find(
+      (el) => el.modality === modality.modality
+    );
+    setInputValue(f.hours);
+    setSelectedModality(modality);
+  };
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    if (selectedModality && inputValue) {
+      const modalityToAdd = {
+        // @ts-ignore
+        ...selectedModality,
+        hours: parseFloat(inputValue),
+      };
+      // Логика для добавления данных
+      console.log(modalityToAdd);
+    }
+  };
 
   const handleMouseEnter = (e) => {
     const rect = e.target.getBoundingClientRect();
@@ -54,7 +82,21 @@ export const DocItem = ({
       top: rect.top + window.scrollY + rect.height / 2,
       left: rect.left + window.scrollX + rect.width + 10,
     });
+    const req = item.doctorWorks.map((el) => {
+      return {
+        doctorId: item.doctorId,
+        modality: el.modality,
+        typeModality: el.typeModality,
+        hours: el.usedExtraHours + el.usedHours,
+      };
+    });
     setModalVisible(true);
+
+    getToolTip(req)
+      .unwrap()
+      .then((res) => {
+        setModalData(res);
+      });
   };
 
   const className = `${item.status === 'yellow' && '!bg-[#FFA842]'} ${item.status === 'green' && '!bg-[#4FDE77]'} ${item.status === 'gray' && '!bg-black'} ${privateExtras && '!bg-[#FFA842] opacity-60'}`;
@@ -73,11 +115,11 @@ export const DocItem = ({
           },
           className,
         })}
-        onClick={handleClick}
       >
         <div
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          onClick={handleClick}
           className="rct-item-Azs"
         >
           {privateExtras && (
@@ -111,8 +153,9 @@ export const DocItem = ({
               </div>
               <div className={'flex flex-col'}></div>
               {toolTipData &&
-                translateModality(toolTipData).map((el) => (
+                translateModality(toolTipData).map((el, index) => (
                   <div
+                    key={index}
                     className={
                       'flex items-center gap-[2px] text-black p-[20px]'
                     }
@@ -139,7 +182,6 @@ export const DocItem = ({
                 top: `${modalPosition.top}px`,
                 left: `${modalPosition.left}px`,
                 transform: 'translateY(-50%)',
-                zIndex: 1000,
                 borderRadius: '4px',
                 whiteSpace: 'nowrap',
               }}
@@ -150,9 +192,54 @@ export const DocItem = ({
                 >
                   Редактирвоание плана работы
                 </div>
-                <div></div>
               </div>
-              <div className={'flex flex-col'}>Мухаморинк эбаут</div>
+              <div className="flex flex-col">
+                {modalData &&
+                  translateModality(modalData).map((el: any) => (
+                    <div
+                      key={el.defaultModality}
+                      className="flex items-center gap-[2px] text-black p-[20px]"
+                    >
+                      <input
+                        type="radio"
+                        name="modality"
+                        value={el.modality}
+                        onChange={() => handleRadioChange(el)}
+                        checked={
+                          selectedModality &&
+                          selectedModality.defaultModality ===
+                            el.defaultModality
+                        }
+                      />
+                      <span className="font-bold text-[18px]">
+                        {el.modality}
+                      </span>
+                      <span className="text-[18px]">-</span>
+                      <span className="text-[18px]">
+                        {el.hours.toFixed(0)} ч.
+                      </span>
+                      <span className="text-[18px]">~</span>
+                      <span className="text-[18px]">{el.work} УЕ</span>
+                    </div>
+                  ))}
+              </div>
+              <div className="mt-4">
+                <input
+                  max={20}
+                  type={'number'}
+                  autoFocus
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  className="border p-[10px]"
+                  placeholder="Введите часы"
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="ml-2 p-[10px] bg-blue-500 text-white rounded"
+                >
+                  Добавить
+                </button>
+              </div>
             </div>
             <div
               onMouseEnter={(e) => e.stopPropagation()}

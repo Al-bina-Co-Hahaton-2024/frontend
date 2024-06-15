@@ -48,6 +48,7 @@ export const AnalyticsPage = () => {
     endOfMonth.valueOf()
   );
   const [weeks, setWeeks] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
 
   const [groupsTimeline, setGroupsTimeline] = useState<null | any[]>(null);
   const [itemsTimeline, setItemsTimeline] = useState<null | any[]>(null);
@@ -122,6 +123,7 @@ export const AnalyticsPage = () => {
                       };
                     });
                     setGroupsTimeline(docsGroups);
+                    setLoading(false);
                   });
 
                 getGraph(
@@ -267,6 +269,7 @@ export const AnalyticsPage = () => {
   const [currentYear, setCurrentYear] = useState(moment().year());
 
   const handlePreviousMonth = () => {
+    setLoading(true);
     const newMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const newYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     setCurrentMonth(newMonth);
@@ -286,6 +289,7 @@ export const AnalyticsPage = () => {
   };
 
   const handleNextMonth = () => {
+    setLoading(true);
     const newMonth = currentMonth === 11 ? 0 : currentMonth + 1;
     const newYear = currentMonth === 11 ? currentYear + 1 : currentYear;
     setCurrentMonth(newMonth);
@@ -305,16 +309,18 @@ export const AnalyticsPage = () => {
   };
 
   const handleGenerateGraph = () => {
+    setLoading(true);
     generateGraph({
       workScheduleDate: moment(visibleTimeStart).format('YYYY-MM-DD'),
     })
       .unwrap()
-      .then(() =>
-        setVisibleTimeStart(moment(visibleTimeStart).add(1, 'day').valueOf())
-      )
+      .then(() => {
+        setVisibleTimeStart(moment(visibleTimeStart).add(1, 'day').valueOf());
+      })
       .catch(() => {});
   };
 
+  console.log(loading);
   if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
     <div
@@ -344,80 +350,82 @@ export const AnalyticsPage = () => {
       </div>
 
       <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
-        <div className={'w-full bg-white mt-12'}>
-          <div className="relative -top-10 z-[1000] translate-x-[350px]">
-            {weeks.map((week, index) => {
-              const weekWidth = 26.413 * 7;
-              const left = 187.4 * index;
-              return (
-                <div
-                  key={index}
-                  className="week-label"
-                  style={{
-                    position: 'absolute',
-                    top: '40px',
-                    left: `${left}px`, // Точное смещение влево
-                    width: `${weekWidth}px`, // Точное расширение ширины
-                    height: '60px',
-                    backgroundColor:
-                      week.status === 'green'
-                        ? 'rgba(79, 222, 119, 0.3)'
-                        : week.status === 'yellow'
-                          ? 'rgba(255, 168, 66, 0.3)'
-                          : 'rgba(128, 128, 128, 0.3)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    zIndex: '1',
-                    borderTopLeftRadius: '10px',
-                    borderTopRightRadius: '10px',
-                    // borderRight: '1px solid gray',
-                    // borderLeft: '1px solid gray',
-                    // border: '1px solid black', // Добавляем границу для визуальной отладки
-                  }}
-                  onClick={() => setReport(week)}
-                >
+        {groupsTimeline && itemsTimeline && !loading && (
+          <div className={'w-full bg-white mt-12'}>
+            <div className="relative -top-10 z-[1000] translate-x-[350px]">
+              {weeks.map((week, index) => {
+                const weekWidth = 26.413 * 7;
+                const left = 187.4 * index;
+                return (
                   <div
-                    className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
+                    key={index}
+                    className="week-label"
+                    style={{
+                      position: 'absolute',
+                      top: '40px',
+                      left: `${left}px`, // Точное смещение влево
+                      width: `${weekWidth}px`, // Точное расширение ширины
+                      height: '60px',
+                      backgroundColor:
+                        week.status === 'green'
+                          ? 'rgba(79, 222, 119, 0.3)'
+                          : week.status === 'yellow'
+                            ? 'rgba(255, 168, 66, 0.3)'
+                            : 'rgba(128, 128, 128, 0.3)',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      zIndex: '1',
+                      borderTopLeftRadius: '10px',
+                      borderTopRightRadius: '10px',
+                      // borderRight: '1px solid gray',
+                      // borderLeft: '1px solid gray',
+                      // border: '1px solid black', // Добавляем границу для визуальной отладки
+                    }}
+                    onClick={() => setReport(week)}
                   >
-                    <div className={'w-[16px] h-[16px]'}>
-                      {week.status === 'green' && (
-                        <img src={acceptance_report} alt={'acc'} />
-                      )}
-                      {week.status === 'yellow' && (
-                        <img src={warning_report} alt={'warning'} />
-                      )}
-                      {week.status === 'gray' && (
-                        <img src={warning_report} alt={'null'} />
-                      )}
-                    </div>
-                    <div className={'font-[600] text-[18px] text-white'}>
-                      Смотреть отчёт
+                    <div
+                      className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
+                    >
+                      <div className={'w-[16px] h-[16px]'}>
+                        {week.status === 'green' && (
+                          <img src={acceptance_report} alt={'acc'} />
+                        )}
+                        {week.status === 'yellow' && (
+                          <img src={warning_report} alt={'warning'} />
+                        )}
+                        {week.status === 'gray' && (
+                          <img src={warning_report} alt={'null'} />
+                        )}
+                      </div>
+                      <div className={'font-[600] text-[18px] text-white'}>
+                        Смотреть отчёт
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          {groupsTimeline && itemsTimeline && (
-            <Timeline
-              groups={groupsTimeline}
-              items={itemsTimeline}
-              defaultTimeStart={moment().startOf('month')}
-              defaultTimeEnd={moment().endOf('month')}
-              canMove={false}
-              visibleTimeStart={visibleTimeStart}
-              visibleTimeEnd={visibleTimeEnd}
-              groupRenderer={DocGroups}
-              itemRenderer={customItemRenderer}
-              lineHeight={100}
-              onTimeChange={() => {}}
-              onBoundsChange={() => {}}
-            />
-          )}
-        </div>
+            {groupsTimeline && itemsTimeline && !loading && (
+              <Timeline
+                groups={groupsTimeline}
+                items={itemsTimeline}
+                defaultTimeStart={moment().startOf('month')}
+                defaultTimeEnd={moment().endOf('month')}
+                canMove={false}
+                visibleTimeStart={visibleTimeStart}
+                visibleTimeEnd={visibleTimeEnd}
+                groupRenderer={DocGroups}
+                itemRenderer={customItemRenderer}
+                lineHeight={100}
+                onTimeChange={() => {}}
+                onBoundsChange={() => {}}
+              />
+            )}
+          </div>
+        )}
       </div>
       <div
         className={

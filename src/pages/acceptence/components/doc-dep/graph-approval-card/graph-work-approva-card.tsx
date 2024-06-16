@@ -1,39 +1,38 @@
 import eye from '../../../../../assets/eye.svg';
+import { setGraphApprovalCard } from '../../../../../store/reducers/serviceSlice';
 import cross_line from '../../../../../assets/cross_line.svg';
-import arrow_down from '../../../../../assets/arrow_down.svg';
-import { CurrentChanges } from './current-changes';
-import { EditableChanges } from './editable-changes';
+import { CurrentChanges } from '../../hr-dep/approoval-card/current-changes';
+import { GraphDatePicker } from './graph-datepicker';
 import {
   useAppDispatch,
   useAppSelector,
 } from '../../../../../store/hooks/storeHooks';
 import {
-  useApproveByManagerMutation,
+  useApproveWorkScheduleMutation,
   useDeclineByManagerMutation,
-  useGetApprovedDoctorCardQuery,
-  useGetDoctorChangesQuery,
+  useDeclineWorkScheduleMutation,
+  useGetAbsenceSchedulersByIdsMutation,
   useGetDoctorsByIdsMutation,
   useGetFioDocsByIdMutation,
-  useLazyGetApprovedDoctorCardQuery,
 } from '../../../../../store/api/doctors/doctorsApi';
 import { useEffect, useState } from 'react';
-import { setApprovalCardState } from '../../../../../store/reducers/serviceSlice';
 
-export const ApproovalCard = () => {
+export const GraphWorkApprovalCard = () => {
   const dispatch = useAppDispatch();
-  const docId = useAppSelector((state) => state.serviceSlice.docId);
-  const reqId = useAppSelector((state) => state.serviceSlice.reqId);
+
+  const docId = useAppSelector((state) => state.serviceSlice.docGraphId);
+  const reqId = useAppSelector((state) => state.serviceSlice.reqGraphId);
 
   const [getDoctor] = useGetDoctorsByIdsMutation();
-  const [approovedDoctor] = useLazyGetApprovedDoctorCardQuery();
   const [getDocFio] = useGetFioDocsByIdMutation();
+  const [absenceTrigger] = useGetAbsenceSchedulersByIdsMutation();
+  const [approveAbsence] = useApproveWorkScheduleMutation();
 
-  const [approve] = useApproveByManagerMutation();
-  const [decline] = useDeclineByManagerMutation();
+  const [decline] = useDeclineWorkScheduleMutation();
 
   const [fio, setFio] = useState<any>(null);
-  const [aprrovedData, setApprovedData] = useState<any>(null);
   const [doc, setDoc] = useState<any>(null);
+  const [absenceDoc, setAbsenceDoc] = useState<any>(null);
 
   useEffect(() => {
     if (docId) {
@@ -42,30 +41,29 @@ export const ApproovalCard = () => {
         .then((res) => {
           setDoc(res);
         });
-      approovedDoctor(docId)
-        .unwrap()
-        .then((res) => {
-          setApprovedData(res);
-        });
       getDocFio([docId])
         .unwrap()
         .then((res) => {
           setFio(res);
         });
+      absenceTrigger([reqId])
+        .unwrap()
+        .then((res) => {
+          setAbsenceDoc(res);
+        });
     }
   }, [docId]);
 
-  if (!fio || !aprrovedData || !doc) return null;
-
+  if (!fio || !doc || !absenceDoc) return null;
   return (
     <div
       className={
-        'z-10 flex flex-col fixed right-0 top-0 w-[670px] h-screen bg-white rounded-tl-[20px] rounded-bl-[20px]'
+        'z-10 flex flex-col fixed right-0 top-0 w-[670px] h-screen bg-white rounded-tl-[20px] rounded-bl-[20px] overflow-y-scroll overflow-hidden'
       }
     >
       <div
         className={
-          'w-full h-[110px] flex justify-between items-center bg-[#FFA842] rounded-tl-[20px] py-[33px] px-[45px]'
+          'w-full h-[110px] flex justify-between items-center bg-[#00A3FF] rounded-tl-[20px] py-[33px] px-[45px]'
         }
       >
         <div className={'flex gap-[15px]'}>
@@ -75,7 +73,7 @@ export const ApproovalCard = () => {
 
           <div className={'flex flex-col '}>
             <div className={'font-[700] text-[24px] text-white'}>
-              Просмтр заявки
+              Просмотр заявки
             </div>
             <div
               className={
@@ -97,7 +95,12 @@ export const ApproovalCard = () => {
         <div
           onClick={() => {
             dispatch(
-              setApprovalCardState({ isOpen: false, docId: null, reqId: null })
+              setGraphApprovalCard({
+                isOpen: false,
+                docId: null,
+                reqId: null,
+                type: null,
+              })
             );
           }}
           className={'cursor-pointer'}
@@ -107,26 +110,26 @@ export const ApproovalCard = () => {
       </div>
 
       <CurrentChanges fioData={fio} docData={doc} />
-      <img
-        className={
-          ' flex justify-center items-center w-full h-[45px] mt-[20px]'
-        }
-        src={arrow_down}
-        alt={'arrow_down'}
-      />
-      <EditableChanges current={doc} feature={aprrovedData} />
 
       <div className={'mt-[40px] w-full flex items-center mx-[25px] gap-5'}>
         <div
           onClick={() => {
-            approve(reqId)
+            approveAbsence(reqId)
               .unwrap()
               .then(() => {
-                dispatch(setApprovalCardState({ isOpen: false, docId: null }));
-              });
+                dispatch(
+                  setGraphApprovalCard({
+                    isOpen: false,
+                    docId: null,
+                    reqId: null,
+                    type: null,
+                  })
+                );
+              })
+              .catch((err) => console.log(err));
           }}
           className={
-            'w-[50%] text-center font-[700] text-[18px] bg-[#FFA842] rounded-[40px] text-white py-[15px] cursor-pointer'
+            'w-[50%] text-center font-[700] text-[18px] bg-[#00A3FF] rounded-[40px] text-white py-[15px] cursor-pointer'
           }
         >
           Согласовтаь изменения
@@ -136,7 +139,13 @@ export const ApproovalCard = () => {
             decline(reqId)
               .unwrap()
               .then(() => {
-                dispatch(setApprovalCardState({ isOpen: false, docId: null }));
+                dispatch(
+                  setGraphApprovalCard({
+                    isOpen: false,
+                    docId: null,
+                    reqId: null,
+                  })
+                );
               });
           }}
           className={

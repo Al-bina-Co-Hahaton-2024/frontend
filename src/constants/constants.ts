@@ -18,6 +18,16 @@ export const _OPT_MODALITIES = [
   { value: 'MRT', label: 'МРТ' },
 ];
 
+export const _WORKDAYS = {
+  MONDAY: 'пн',
+  TUESDAY: 'вт',
+  WEDNESDAY: 'ср',
+  THURSDAY: 'чт',
+  FRIDAY: 'пт',
+  SATURDAY: 'сб',
+  SUNDAY: 'вс',
+};
+
 export const _MEDICAL_MODALITIES = {
   RG: 'РГ',
   MRT: 'МРТ',

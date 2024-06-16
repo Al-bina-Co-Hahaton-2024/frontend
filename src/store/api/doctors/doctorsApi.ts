@@ -3,14 +3,15 @@ import { IDocsData } from './types';
 
 export const doctorsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getDoctors: builder.query<IDocsData, any>({
+    getDoctors: builder.mutation<IDocsData, any>({
       query: (args) => {
-        const { page, userIds } = args;
+        const { page, body } = args;
         return {
-          url: `/medical/doctors?${userIds ? `userIds=${userIds.join(',')}&` : ''}page=${page}&size=11&sort=id`,
+          url: `/medical/doctors?page=${page}&size=11&sort=id`,
+          method: 'POST',
+          body,
         };
       },
-      providesTags: ['doctor'],
     }),
     getAllDoctors: builder.query({
       query: () => `/medical/doctors/`,
@@ -98,6 +99,7 @@ export const doctorsApi = baseApi.injectEndpoints({
     getDoctorsApplications: builder.query({
       query: (page) =>
         `/approve/doctor-applications?page=${page}&size=3&sort=id`,
+      providesTags: ['doctor'],
     }),
     getDoctorWorkSchedulersByIds: builder.mutation({
       query: (body) => {
@@ -133,6 +135,7 @@ export const doctorsApi = baseApi.injectEndpoints({
           method: 'POST',
         };
       },
+      invalidatesTags: ['doctor'],
     }),
     declineByManager: builder.mutation({
       query: (id) => {
@@ -143,12 +146,51 @@ export const doctorsApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ['doctor'],
     }),
+    approveWorkSchedule: builder.mutation({
+      query: (id) => {
+        return {
+          url: `/approve/doctor-work-schedulers/${id}/approve`,
+          method: 'POST',
+        };
+      },
+      invalidatesTags: ['doctor'],
+    }),
+    declineWorkSchedule: builder.mutation({
+      query: (id) => {
+        return {
+          url: `/approve/doctor-work-schedulers/${id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['doctor'],
+    }),
+    declineAbsenceSchedule: builder.mutation({
+      query: (id) => {
+        return {
+          url: `/approve/absence-schedulers/${id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['doctor'],
+    }),
+    approveAbsenceSchedule: builder.mutation({
+      query: (id) => {
+        return {
+          url: `/approve/absence-schedulers/${id}/approve`,
+          method: 'POST',
+        };
+      },
+      invalidatesTags: ['doctor'],
+    }),
   }),
 });
 
 export const {
-  useGetDoctorsQuery,
-  useLazyGetDoctorsQuery,
+  useApproveAbsenceScheduleMutation,
+  useApproveWorkScheduleMutation,
+  useDeclineAbsenceScheduleMutation,
+  useDeclineWorkScheduleMutation,
+  useGetDoctorsMutation,
   useGetFioDocsByIdMutation,
   useGetIdByFioElasticMutation,
   usePatchDoctorByIdMutation,

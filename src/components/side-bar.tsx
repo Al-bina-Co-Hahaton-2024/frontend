@@ -15,7 +15,7 @@ export const SideBar = () => {
     >
       <img src={logo} alt={'logo'} />
       <div className={'flex flex-col gap-[10px]'}>
-        {localStorage.getItem('role') === 'hr' && (
+        {localStorage.getItem('role') === 'HR' && (
           <Link
             to={'/employees'}
             className={`${location.pathname.includes('employees') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}
@@ -28,7 +28,7 @@ export const SideBar = () => {
             </div>
           </Link>
         )}
-        {localStorage.getItem('role') === 'hr' && (
+        {localStorage.getItem('role') === 'HR' && (
           <Link
             to={'/acc_users'}
             className={`${location.pathname.includes('acc_users') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}
@@ -41,7 +41,7 @@ export const SideBar = () => {
             </div>
           </Link>
         )}
-        {localStorage.getItem('role') === 'manager' && (
+        {localStorage.getItem('role') === 'HEAD_DEPARTMENT' && (
           <Link
             to={'/forecast'}
             className={`${location.pathname.includes('forecast') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}
@@ -58,7 +58,7 @@ export const SideBar = () => {
             </div>
           </Link>
         )}
-        {localStorage.getItem('role') === 'manager' && (
+        {localStorage.getItem('role') === 'HEAD_DEPARTMENT' && (
           <Link
             to={'/analytics'}
             className={`${location.pathname.includes('analytics') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}
@@ -75,7 +75,7 @@ export const SideBar = () => {
             </div>
           </Link>
         )}
-        {localStorage.getItem('role') === 'manager' && (
+        {localStorage.getItem('role') === 'HEAD_DEPARTMENT' && (
           <Link
             to={'/accept_users'}
             className={`${location.pathname.includes('accept_users') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}

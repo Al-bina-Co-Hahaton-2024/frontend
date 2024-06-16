@@ -8,6 +8,7 @@ import { AcceptanceUsersPage } from './pages/acceptence/page';
 import { ForecastPage } from './pages/forecast/page';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { _404Page } from './pages/404/page';
 
 function App() {
   return (
@@ -54,6 +55,22 @@ function App() {
             element={
               <AdminLayout>
                 <ForecastPage />
+              </AdminLayout>
+            }
+          />
+          <Route
+            path="/404"
+            element={
+              <AdminLayout>
+                <_404Page />
+              </AdminLayout>
+            }
+          />
+          <Route
+            path="/acc_users"
+            element={
+              <AdminLayout>
+                <_404Page />
               </AdminLayout>
             }
           />

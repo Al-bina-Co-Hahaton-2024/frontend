@@ -119,7 +119,7 @@ export const DocGroupsSearch = ({ setGroups, startDate }) => {
       <select
         onChange={handleModalitySearch}
         className={
-          'absolute  rounded-[10px] px-[10px] py-[12px] bg-white h-[40px]  z-[8000] top-14 left-[220px] border max-w-[120px] overflow-hidden outline-none'
+          'absolute  rounded-[10px] px-[10px] py-[5px] bg-white h-[40px]  z-[8000] top-14 left-[220px] border max-w-[120px] overflow-hidden outline-none'
         }
       >
         <option value={''}>Все модальности</option>

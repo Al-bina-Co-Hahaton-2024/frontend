@@ -200,9 +200,60 @@ export const AnalyticsPage = () => {
                     return () => {
                       clearTimeout(timer);
                     };
+                  })
+                  .catch(() => {
+                    toast.error(
+                      'Что-то пошло не так, перезагрузите страницу!',
+                      {
+                        position: 'top-right',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: 'light',
+                      }
+                    );
                   });
+              })
+              .catch(() => {
+                toast.error('Что-то пошло не так, перезагрузите страницу!', {
+                  position: 'top-right',
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                });
               });
+          })
+          .catch(() => {
+            toast.error('Что-то пошло не так, перезагрузите страницу!', {
+              position: 'top-right',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+            });
           });
+      })
+      .catch(() => {
+        toast.error('Что-то пошло не так, перезагрузите страницу!', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
       });
   }, [getGraph, visibleTimeStart]);
 
@@ -399,6 +450,21 @@ export const AnalyticsPage = () => {
     });
   };
 
+  const handleWheel = (e) => {
+    if (e.deltaX !== 0) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  const handleScroll = (e) => {
+    if (e.target.scrollLeft !== 0) {
+      e.target.scrollLeft = 0;
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <div
       className={'w-[1700px] flex gap-[2px] mx-auto my-[30px] rounded relative'}
@@ -437,7 +503,11 @@ export const AnalyticsPage = () => {
           <Skeleton className={'absolute top-24'} width="100%" height="100%" />
         )}
         {groupsTimeline && itemsTimeline && !loading && (
-          <div className={'w-full bg-white mt-12'}>
+          <div
+            onWheel={handleWheel}
+            onScroll={handleScroll}
+            className={'w-full bg-white mt-12'}
+          >
             <div className="relative -top-10 z-[1000] translate-x-[350px]">
               {weeks.map((week, index) => {
                 const weekWidth = 26.413 * 7;

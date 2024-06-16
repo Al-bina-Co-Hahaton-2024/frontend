@@ -11,11 +11,10 @@ export const authApi = baseApi.injectEndpoints({
         };
       },
     }),
-    getMe: builder.query({
+    getMe: builder.query<any, any>({
       query: () => `/user/users/me`,
     }),
   }),
 });
 
-export const { useAuthUserMutation, useGetMeQuery, useLazyGetMeQuery } =
-  authApi;
+export const { useAuthUserMutation, useGetMeQuery } = authApi;

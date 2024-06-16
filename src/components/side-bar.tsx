@@ -9,8 +9,7 @@ import { useGetMeQuery } from '../store/api/auth/authApi';
 export const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const fullName = useGetMeQuery(1)?.data?.fullName;
-  console.log(fullName);
+  const { data: dataUser, isLoading: isLoadingUser } = useGetMeQuery(1);
   return (
     <div
       className={
@@ -94,7 +93,12 @@ export const SideBar = () => {
         )}
       </div>
       <div>
-        {fullName?.first} {fullName?.last} {fullName?.middle}
+        {dataUser &&
+          dataUser.fullName.first +
+            ' ' +
+            dataUser.fullName.last +
+            ' ' +
+            dataUser.fullName.middle}
         <hr />
         <button
           onClick={() => navigate('/')}

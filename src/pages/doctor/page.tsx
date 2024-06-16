@@ -26,7 +26,7 @@ export const DoctorPage = () => {
           setUser(result);
         })
         .catch(() => {
-          toast.error('Что-то пошло не так, перезагрузите страницу!', {
+          toast.error('Что-то пошло не так !', {
             position: 'top-right',
             autoClose: 5000,
             hideProgressBar: false,

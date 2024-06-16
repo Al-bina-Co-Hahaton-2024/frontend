@@ -202,23 +202,20 @@ export const AnalyticsPage = () => {
                     };
                   })
                   .catch(() => {
-                    toast.error(
-                      'Что-то пошло не так, перезагрузите страницу!',
-                      {
-                        position: 'top-right',
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: 'light',
-                      }
-                    );
+                    toast.error('Что-то пошло не так !', {
+                      position: 'top-right',
+                      autoClose: 5000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: 'light',
+                    });
                   });
               })
               .catch(() => {
-                toast.error('Что-то пошло не так, перезагрузите страницу!', {
+                toast.error('Что-то пошло не так !', {
                   position: 'top-right',
                   autoClose: 5000,
                   hideProgressBar: false,
@@ -231,7 +228,7 @@ export const AnalyticsPage = () => {
               });
           })
           .catch(() => {
-            toast.error('Что-то пошло не так, перезагрузите страницу!', {
+            toast.error('Что-то пошло не так !', {
               position: 'top-right',
               autoClose: 5000,
               hideProgressBar: false,
@@ -244,7 +241,7 @@ export const AnalyticsPage = () => {
           });
       })
       .catch(() => {
-        toast.error('Что-то пошло не так, перезагрузите страницу!', {
+        toast.error('Что-то пошло не так !', {
           position: 'top-right',
           autoClose: 5000,
           hideProgressBar: false,

@@ -554,8 +554,14 @@ export const AnalyticsPage = () => {
                           {element.modality}
                         </div>
                         <div>-</div>
-                        <div className={'text-[14px] font-bold'}>
-                          {element.work} / {element.workload}
+                        <div className={'flex flex-col'}>
+                          <div className={'text-[14px] font-bold'}>
+                            {element.work} / {element.workload}{' '}
+                          </div>
+                          <div className={'text-[12px] font-bold'}>
+                            {element.hoursNeed !== 0.0 &&
+                              `(~${element.hoursNeed} Ч)`}
+                          </div>
                         </div>
                       </div>
                       <div

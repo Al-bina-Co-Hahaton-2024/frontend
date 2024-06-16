@@ -15,6 +15,15 @@ export const doctorsApi = baseApi.injectEndpoints({
     getAllDoctors: builder.query({
       query: () => `/medical/doctors/`,
     }),
+    findDocs: builder.mutation({
+      query: (body) => {
+        return {
+          url: '/medical/doctors/find',
+          method: 'POST',
+          body,
+        };
+      },
+    }),
     getDoctorsByIds: builder.mutation({
       query: (body) => {
         return {
@@ -156,4 +165,5 @@ export const {
   useDeclineByManagerMutation,
   useApproveAbsenceSchedulerMutation,
   useLazyGetAllDoctorsQuery,
+  useFindDocsMutation,
 } = doctorsApi;

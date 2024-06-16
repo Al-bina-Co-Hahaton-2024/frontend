@@ -31,8 +31,9 @@ import { DocGroupsSearch } from './search';
 import { useAppDispatch, useAppSelector } from '../../store/hooks/storeHooks';
 import { setWeekReport } from '../../store/reducers/serviceSlice';
 import { toast } from 'react-toastify';
-import { ModalPortal } from './moda-portal';
 import { EmptyItem } from './emptyItem';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 export const AnalyticsPage = () => {
   const dispatch = useAppDispatch();
@@ -77,6 +78,8 @@ export const AnalyticsPage = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [emptyItem, setEmptyItem] = useState<null | any>(null);
   const [timeEmpty, setTimeEmpty] = useState(null);
+
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
     const weeksDates: any = [];
@@ -147,7 +150,6 @@ export const AnalyticsPage = () => {
                       };
                     });
                     setGroupsTimeline(docsGroups);
-                    setLoading(false);
                   });
 
                 getGraph(
@@ -191,6 +193,13 @@ export const AnalyticsPage = () => {
                       .flat();
 
                     setItemsTimeline(tmpItems);
+                    const timer = setTimeout(() => {
+                      setLoading(false);
+                    }, 1500);
+
+                    return () => {
+                      clearTimeout(timer);
+                    };
                   });
               });
           });
@@ -208,6 +217,7 @@ export const AnalyticsPage = () => {
   };
 
   const handleGetReport = () => {
+    setReportLoading(true);
     createReport({
       date: `${moment(visibleTimeStart).add(1, 'week').format('YYYY-MM-DD')}`,
     })
@@ -217,6 +227,7 @@ export const AnalyticsPage = () => {
           getReport(res.id)
             .unwrap()
             .then((res) => {
+              setReportLoading(false);
               window.open(res.link, '_blank');
             });
         }, 2000);
@@ -365,6 +376,7 @@ export const AnalyticsPage = () => {
         return;
       }
       setVisibleTimeStart((prev) => moment(prev).add(1, 'day').valueOf());
+      setLoading(true);
 
       const divEl = generateGraphRef.current;
       if (divEl) {
@@ -387,16 +399,14 @@ export const AnalyticsPage = () => {
     });
   };
 
-  if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
     <div
       className={'w-[1700px] flex gap-[2px] mx-auto my-[30px] rounded relative'}
     >
       <button
         onClick={handleGetReport}
-        className={
-          'absolute border rounded-[10px] py-[5px] px-[30px] left-16 top-2 bg-white text-white cursor-pointer z-[8999] flex items-center gap-[5px] hover:bg-gray-300 transition ease-in-out shadow-lg'
-        }
+        disabled={reportLoading}
+        className={`absolute border bg-white  ${reportLoading && 'opacity-50 bg-gray-400'} rounded-[10px] py-[5px] px-[30px] left-16 top-2 bg-white text-white cursor-pointer z-[8999] flex items-center gap-[5px] hover:bg-gray-300 transition ease-in-out shadow-lg`}
       >
         <img src={download_calendar} alt={'download'} />
         <span className={'font-[600] text-[18px] text-black'}>
@@ -423,6 +433,9 @@ export const AnalyticsPage = () => {
       </div>
 
       <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
+        {loading && (
+          <Skeleton className={'absolute top-24'} width="100%" height="100%" />
+        )}
         {groupsTimeline && itemsTimeline && !loading && (
           <div className={'w-full bg-white mt-12'}>
             <div className="relative -top-10 z-[1000] translate-x-[350px]">

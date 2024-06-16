@@ -63,11 +63,22 @@ export const planerApi = baseApi.injectEndpoints({
         };
       },
     }),
+    patchWorkSchedule: builder.mutation({
+      query: (args) => {
+        const { work, doc, body } = args;
+        return {
+          url: `/planner/work-schedules/${work}/doctor-schedules/${doc}/extra-hours`,
+          method: 'PATCH',
+          body,
+        };
+      },
+    }),
   }),
 });
 
 export const {
   useGetAnalyzesWeeksMutation,
+  usePatchWorkScheduleMutation,
   useGetGraphOnMonthQuery,
   useGetWeekNumsQuery,
 

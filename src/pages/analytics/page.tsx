@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
@@ -8,12 +8,12 @@ import {
   useGetAnalyzesWeeksMutation,
   useLazyGetGraphOnMonthQuery,
   useLazyGetWeekNumsQuery,
+  usePatchWorkScheduleMutation,
 } from '../../store/api/schedule/planer';
 import {
   useCreateReportMutation,
   useLazyGetReportQuery,
 } from '../../store/api/export/exportApi';
-import { v4 as uuidv4 } from 'uuid';
 import {
   useGetDoctorsByIdsMutation,
   useGetFioDocsByIdMutation,
@@ -30,11 +30,19 @@ import { translateModality } from '../../utils/transform';
 import { DocGroupsSearch } from './search';
 import { useAppDispatch, useAppSelector } from '../../store/hooks/storeHooks';
 import { setWeekReport } from '../../store/reducers/serviceSlice';
+import { toast } from 'react-toastify';
+import { ModalPortal } from './moda-portal';
+import { EmptyItem } from './emptyItem';
 
 export const AnalyticsPage = () => {
   const dispatch = useAppDispatch();
+  const generateGraphRef: any = useRef(null);
   const weekReportSelector = useAppSelector(
     (state) => state.serviceSlice.weekReport
+  );
+
+  const reportSelector = useAppSelector(
+    (state) => state.serviceSlice.reportPatchData
   );
 
   const [docsFio] = useGetFioDocsByIdMutation();
@@ -48,6 +56,7 @@ export const AnalyticsPage = () => {
 
   const [getAllDoctors] = useLazyGetAllDoctorsQuery();
   const [generateGraph] = useGenerateCalendarMutation();
+  const [patchReport] = usePatchWorkScheduleMutation();
 
   const startOfMonth = moment().startOf('month');
   const endOfMonth = moment().endOf('month').add(14, 'days');
@@ -65,6 +74,7 @@ export const AnalyticsPage = () => {
   const [itemsTimeline, setItemsTimeline] = useState<null | any[]>(null);
 
   const [report, setReport] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const weeksDates: any = [];
@@ -159,7 +169,8 @@ export const AnalyticsPage = () => {
                           (el) => el.weekNumber === element.weekNumber
                         );
                         return element.doctorSchedules.map((doc) => ({
-                          id: uuidv4(),
+                          id: doc.id,
+                          dayId: element.id,
                           group: doc.doctorId,
                           start_time: moment(
                             `${element.date}T05:00:00`
@@ -183,6 +194,10 @@ export const AnalyticsPage = () => {
           });
       });
   }, [getGraph, visibleTimeStart]);
+
+  const handleOnEmptyCanvasClick = (docId, time, e) => {
+    console.log(docId, time, e);
+  };
 
   const handleGetReport = () => {
     createReport({
@@ -299,7 +314,70 @@ export const AnalyticsPage = () => {
       .catch(() => {});
   };
 
-  console.log(weekReportSelector);
+  const handleSaveReport = () => {
+    if (reportSelector.length === 0) {
+      toast.warning('Никаких изменений нет', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+
+      return;
+    }
+    const promises: any = [];
+    reportSelector.forEach((el) => {
+      const tmp = {
+        work: el.id_work_scheduler,
+        doc: el.id_doctor_scheduler,
+        body: {
+          extraHours: el.extraHours,
+        },
+      };
+      promises.push(tmp);
+    });
+
+    Promise.all(promises.map((el) => patchReport(el))).then((res) => {
+      if (res.some((el) => el.error)) {
+        toast.error(`Что-то пошло не так`, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+
+        return;
+      }
+      setVisibleTimeStart((prev) => moment(prev).add(1, 'day').valueOf());
+
+      const divEl = generateGraphRef.current;
+      if (divEl) {
+        divEl.classList.add('pulse-animation');
+      }
+
+      toast.warning(
+        `График отредактирован, необходимо сгенерировать график заново!`,
+        {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        }
+      );
+    });
+  };
 
   if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
@@ -368,7 +446,12 @@ export const AnalyticsPage = () => {
                       borderTopRightRadius: '10px',
                     }}
                     onClick={() => {
-                      dispatch(setWeekReport(week));
+                      dispatch(
+                        setWeekReport({
+                          perfomance: week,
+                          current: week,
+                        })
+                      );
                     }}
                   >
                     <div
@@ -406,6 +489,7 @@ export const AnalyticsPage = () => {
                 groupRenderer={DocGroups}
                 itemRenderer={customItemRenderer}
                 lineHeight={100}
+                onCanvasClick={handleOnEmptyCanvasClick}
                 onTimeChange={() => {}}
                 onBoundsChange={() => {}}
               />
@@ -440,7 +524,6 @@ export const AnalyticsPage = () => {
                   Неделеля № {weekReportSelector.weekNumber}
                 </div>
               </div>
-
               <div className={'flex flex-col gap-[10px] px-[20px] mt-[20px] '}>
                 {translateModality(weekReportSelector.workloads).map(
                   (element) => (
@@ -480,10 +563,25 @@ export const AnalyticsPage = () => {
                   )
                 )}
               </div>
+              <button
+                onClick={handleSaveReport}
+                className={
+                  'mx-auto mt-[10px]  rounded-[20px] bg-[#FFA842] p-2 w-[100px] text-white hover:bg-[#FFA900] font-[800]'
+                }
+              >
+                Сохранить
+              </button>
             </div>
           )}
         </div>
         <div
+          onMouseEnter={() => {
+            const cur = generateGraphRef.current;
+            if (cur) {
+              cur.classList.remove('pulse-animation');
+            }
+          }}
+          ref={generateGraphRef}
           className={
             'flex flex-col mt-[20px] bg-white justify-center items-center p-5'
           }
@@ -496,6 +594,7 @@ export const AnalyticsPage = () => {
           />
         </div>
       </div>
+      {modalVisible && <EmptyItem />}
     </div>
   );
 };

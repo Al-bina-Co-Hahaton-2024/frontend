@@ -10,7 +10,10 @@ const initialState: any = {
   docGraphId: null,
   reqGraphId: null,
 
+  currentWeekReport: null,
   weekReport: null,
+
+  reportPatchData: [],
 };
 
 export const serviceSlice = createSlice({
@@ -37,10 +40,22 @@ export const serviceSlice = createSlice({
       }
     },
     setWeekReport: (state, action) => {
-      state.weekReport = action.payload;
+      if (action.payload.current) {
+        state.currentWeekReport = action.payload.current;
+      }
+      if (action.payload.perfomance) {
+        state.weekReport = action.payload.perfomance;
+      }
+    },
+    setReportPatchData: (state, action) => {
+      state.reportPatchData = action.payload;
     },
   },
 });
 
-export const { setApprovalCardState, setGraphApprovalCard, setWeekReport } =
-  serviceSlice.actions;
+export const {
+  setApprovalCardState,
+  setReportPatchData,
+  setGraphApprovalCard,
+  setWeekReport,
+} = serviceSlice.actions;

@@ -4,8 +4,12 @@ import { useGetToolTipModalityMutation } from '../../store/api/schedule/planer';
 import { translateModality } from '../../utils/transform';
 import { ModalPortal } from './moda-portal';
 import zamok from '../../assets/zamok.svg';
-import { useAppSelector } from '../../store/hooks/storeHooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks/storeHooks';
 import { toast } from 'react-toastify';
+import {
+  setReportPatchData,
+  setWeekReport,
+} from '../../store/reducers/serviceSlice';
 
 export const DocItem = ({
   item,
@@ -13,8 +17,15 @@ export const DocItem = ({
   getItemProps,
   getResizeProps,
 }) => {
+  const dispatch = useAppDispatch();
   const weekReportSelector = useAppSelector(
     (state) => state.serviceSlice.weekReport
+  );
+  const currentWeekReportSelector = useAppSelector(
+    (state) => state.serviceSlice.currentWeekReport
+  );
+  const reportPatchData = useAppSelector(
+    (state) => state.serviceSlice.reportPatchData
   );
 
   const [getToolTip] = useGetToolTipModalityMutation();
@@ -28,6 +39,7 @@ export const DocItem = ({
 
   const [selectedModality, setSelectedModality] = useState<any>(null);
   const [inputValue, setInputValue] = useState<any>(item.manualExtraHours);
+  // const [extras, setExtras] = useState(item.manualExtraHours)
 
   const handleRadioChange = (modality) => {
     setSelectedModality(modality);
@@ -38,7 +50,6 @@ export const DocItem = ({
   };
 
   const handleSubmit = () => {
-    console.log(item);
     if (!weekReportSelector?.weekNumber) {
       toast.warning('Откройте отчет за неделю!', {
         position: 'top-right',
@@ -53,7 +64,6 @@ export const DocItem = ({
 
       return;
     }
-    console.log(weekReportSelector, item);
 
     if (item.weekNumber !== weekReportSelector.weekNumber) {
       toast.warning('Сохраните отчет за текущую неделю!', {
@@ -108,10 +118,43 @@ export const DocItem = ({
       ])
         .unwrap()
         .then((response) => {
-          console.log(response);
+          const weeReportTmp = { ...currentWeekReportSelector };
+          console.log(weeReportTmp);
+          const transformed = weeReportTmp.workloads.map((el) => {
+            if (
+              el.modality === response[0].modality &&
+              el.typeModality === response[0].typeModality
+            ) {
+              return {
+                ...el,
+                work: Number(el.work) + Number(response[0].work),
+                hoursNeed: Number(el.hoursNeed) - Number(response[0].hours),
+              };
+            } else {
+              return {
+                ...el,
+              };
+            }
+          });
+
+          const reportData = [...reportPatchData];
+
+          const obj = {
+            id_work_scheduler: item.dayId,
+            id_doctor_scheduler: item.id,
+            extraHours: inputValue,
+          };
+
+          reportData.push(obj);
+
+          weeReportTmp.workloads = transformed;
+          dispatch(
+            setWeekReport({
+              perfomance: weeReportTmp,
+            })
+          );
+          dispatch(setReportPatchData(reportData));
         });
-      // Логика для добавления данных
-      console.log(modalityToAdd, 'LASDLLASD');
     }
   };
 
@@ -143,7 +186,6 @@ export const DocItem = ({
   const privateExtras = item.manualExtraHours > 0;
 
   const handleClick = (e) => {
-    if (privateExtras) return;
     const rect = e.target.getBoundingClientRect();
     setIsTooltipVisible(false);
     setModalPosition({
@@ -291,27 +333,33 @@ export const DocItem = ({
                     </div>
                   ))}
               </div>
-              <div className="mt-4">
+              <div className="mt-4 p-2 flex items-center gap-[10px]">
+                <div></div>
                 <input
                   max={20}
                   type={'number'}
                   autoFocus
                   value={inputValue}
                   onChange={handleInputChange}
-                  className="border p-[10px]"
+                  className="border p-[10px] w-[100px]"
                   placeholder="Введите часы"
                 />
                 <button
                   onClick={handleSubmit}
-                  className="ml-2 p-[10px] bg-blue-500 text-white rounded"
+                  className="p-[10px] bg-blue-500 text-white rounded"
                 >
-                  Добавить
+                  Установить
                 </button>
               </div>
             </div>
             <div
               onMouseEnter={(e) => e.stopPropagation()}
               onClick={(e) => {
+                dispatch(
+                  setWeekReport({
+                    current: weekReportSelector,
+                  })
+                );
                 e.stopPropagation();
                 setModalVisible(false);
               }}

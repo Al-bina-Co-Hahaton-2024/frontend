@@ -133,7 +133,7 @@ export const GraphApprovalCard = () => {
             'w-[50%] text-center font-[700] text-[18px] bg-[#00A3FF] rounded-[40px] text-white py-[15px] cursor-pointer'
           }
         >
-          Согласовтаь изменения
+          Согласовать изменения
         </div>
         <div
           onClick={() => {

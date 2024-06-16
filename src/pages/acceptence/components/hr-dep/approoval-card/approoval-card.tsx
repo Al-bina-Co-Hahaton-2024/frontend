@@ -129,7 +129,7 @@ export const ApproovalCard = () => {
             'w-[50%] text-center font-[700] text-[18px] bg-[#FFA842] rounded-[40px] text-white py-[15px] cursor-pointer'
           }
         >
-          Согласовтаь изменения
+          Согласовать изменения
         </div>
         <div
           onClick={() => {

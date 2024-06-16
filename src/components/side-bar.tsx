@@ -3,10 +3,13 @@ import hr from '../assets/hr.svg';
 import anketa from '../assets/anketa.svg';
 import forecast from '../assets/forecast.svg';
 import work_tabel from '../assets/work_tabel.svg';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useGetMeQuery } from '../store/api/auth/authApi';
 
 export const SideBar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { data: dataUser, isLoading: isLoadingUser } = useGetMeQuery(1);
   return (
     <div
       className={
@@ -89,7 +92,21 @@ export const SideBar = () => {
           </Link>
         )}
       </div>
-      <div>User</div>
+      <div>
+        {dataUser &&
+          dataUser.fullName.first +
+            ' ' +
+            dataUser.fullName.last +
+            ' ' +
+            dataUser.fullName.middle}
+        <hr />
+        <button
+          onClick={() => navigate('/')}
+          className="w-full py-2 px-4 bg-black h-[60px]  text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+        >
+          Выйти
+        </button>
+      </div>
     </div>
   );
 };

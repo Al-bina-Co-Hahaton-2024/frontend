@@ -37,7 +37,6 @@ export const AuthorizationPage: React.FC = () => {
     })
       .unwrap()
       .then((res) => {
-        console.log(res);
         const role = res.roles[0];
         localStorage.setItem('role', role);
         Cookies.set('accessToken', res.token);

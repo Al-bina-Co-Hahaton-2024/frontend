@@ -7,7 +7,6 @@ import { setGraphApprovalCard } from '../../../../store/reducers/serviceSlice';
 
 export const DocList: React.FC<any> = React.memo(({ docs }) => {
   const dispatch = useAppDispatch();
-  console.log(docs);
   return (
     <div className={'flex items-center gap-[10px] overflow-hidden'}>
       <AnimatePresence mode={'wait'}>

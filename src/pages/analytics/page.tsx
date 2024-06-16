@@ -75,6 +75,8 @@ export const AnalyticsPage = () => {
 
   const [report, setReport] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [emptyItem, setEmptyItem] = useState<null | any>(null);
+  const [timeEmpty, setTimeEmpty] = useState(null);
 
   useEffect(() => {
     const weeksDates: any = [];
@@ -196,7 +198,13 @@ export const AnalyticsPage = () => {
   }, [getGraph, visibleTimeStart]);
 
   const handleOnEmptyCanvasClick = (docId, time, e) => {
-    console.log(docId, time, e);
+    getAllDoctors({})
+      .unwrap()
+      .then((res) => {
+        setEmptyItem(res.find((el) => el.id === docId));
+        setTimeEmpty(time);
+        setModalVisible(true);
+      });
   };
 
   const handleGetReport = () => {
@@ -594,7 +602,14 @@ export const AnalyticsPage = () => {
           />
         </div>
       </div>
-      {modalVisible && <EmptyItem />}
+      {modalVisible && (
+        <EmptyItem
+          time={timeEmpty}
+          item={emptyItem}
+          setModal={setModalVisible}
+          setTime={setVisibleTimeStart}
+        />
+      )}
     </div>
   );
 };

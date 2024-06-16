@@ -154,6 +154,8 @@ export const DocItem = ({
             })
           );
           dispatch(setReportPatchData(reportData));
+
+          setModalVisible(false);
         });
     }
   };

@@ -25,6 +25,7 @@
     "react-datepicker": "^6.9.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.51.5",
+    "react-loading-skeleton": "^3.4.0",
     "react-multi-date-picker": "^4.5.1",
     "react-multi-select-component": "^4.3.4",
     "react-paginate": "^8.2.0",

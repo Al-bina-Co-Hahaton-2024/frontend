@@ -73,6 +73,15 @@ export const planerApi = baseApi.injectEndpoints({
         };
       },
     }),
+    patchEmptyItem: builder.mutation({
+      query: (body) => {
+        return {
+          url: '/planner/work-schedules/add-day',
+          method: 'POST',
+          body,
+        };
+      },
+    }),
   }),
 });
 
@@ -89,4 +98,5 @@ export const {
   useGenerateCalendarMutation,
   useGetToolTipModalityMutation,
   useGetSearchDocsCalendarMutation,
+  usePatchEmptyItemMutation,
 } = planerApi;

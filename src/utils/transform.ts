@@ -44,3 +44,44 @@ export function translateModality(data) {
     };
   });
 }
+
+export function getTransformedModality(data) {
+  switch (data.modality) {
+    case 'RG':
+      return [
+        {
+          modality: 'FLG',
+          typeModality: 'DEFAULT',
+        },
+      ];
+    case 'KT':
+      return [
+        {
+          modality: 'KTU',
+          typeModality: 'U',
+        },
+        {
+          modality: 'KTU2',
+          typeModality: 'U2',
+        },
+      ];
+    case 'MRT':
+      return [
+        {
+          modality: 'MRTU',
+          typeModality: 'U',
+        },
+        {
+          modality: 'MRTU2',
+          typeModality: 'U2',
+        },
+      ];
+    default:
+      return [
+        {
+          modality: data.modality,
+          typeModality: 'DEFAULT',
+        },
+      ];
+  }
+}

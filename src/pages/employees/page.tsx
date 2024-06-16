@@ -68,7 +68,7 @@ export const EmployeesPage = () => {
           theme: 'light',
         });
       });
-  }, [editablePerson, addPerson, page]);
+  }, [editablePerson, addPerson, page, idsDocd]);
 
   const handlePageClick = (data) => {
     let selected = data.selected;

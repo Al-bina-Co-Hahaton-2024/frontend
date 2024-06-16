@@ -48,7 +48,7 @@ export const AuthorizationPage: React.FC = () => {
           navigate('/analytics');
         }
         if (role === 'DOCTOR') {
-          navigate('/404');
+          navigate('/lk');
         }
       })
       .catch((err) => console.log(err))
@@ -152,22 +152,3 @@ export const AuthorizationPage: React.FC = () => {
 };
 
 export default AuthorizationPage;
-
-// <button
-//     onClick={() => handleButtonClick('doc')}
-//     className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-// >
-//     Войти как врач
-// </button>
-// <button
-//     onClick={() => handleButtonClick('hr')}
-//     className="w-full py-2 px-4 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
-// >
-//     Войти как сотрудник кадров
-// </button>
-// <button
-//     onClick={() => handleButtonClick('manager')}
-//     className="w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75"
-// >
-//     Войти как менеджер
-// </button>

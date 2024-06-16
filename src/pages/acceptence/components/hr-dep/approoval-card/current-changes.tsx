@@ -5,6 +5,8 @@ export const CurrentChanges = ({ fioData, docData }) => {
   const fioObj = fioData[0];
   const currentDoc = docData[0];
 
+  console.log(currentDoc);
+
   return (
     <div className={'mx-[25px]'}>
       <div className={'p-[20px] flex items-center w-full gap-[20px]'}>
@@ -29,7 +31,7 @@ export const CurrentChanges = ({ fioData, docData }) => {
               Начало работы
             </div>
             <div className={'font-[400] text-[18px]'}>
-              {currentDoc.startWorkDay ?? '-'}
+              {currentDoc?.startWorkDay ?? '-'}
             </div>
           </div>
 
@@ -38,7 +40,7 @@ export const CurrentChanges = ({ fioData, docData }) => {
               Время работы
             </div>
             <div className={'font-[400] text-[18px]'}>
-              {currentDoc.hours ?? '-'}
+              {currentDoc?.hours ?? '-'}
             </div>
           </div>
 
@@ -47,8 +49,8 @@ export const CurrentChanges = ({ fioData, docData }) => {
               Рабочие дни
             </div>
             <div className={'font-[400] text-[18px] flex gap-[5px]'}>
-              {currentDoc.workDays !== null
-                ? currentDoc.workDays.map((el) => <p>{_WORKDAYS[el]}</p>)
+              {currentDoc?.workDays !== null
+                ? currentDoc?.workDays.map((el) => <p>{_WORKDAYS[el]}</p>)
                 : '-'}
             </div>
           </div>

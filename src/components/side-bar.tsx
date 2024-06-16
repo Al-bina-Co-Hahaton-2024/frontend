@@ -3,6 +3,7 @@ import hr from '../assets/hr.svg';
 import anketa from '../assets/anketa.svg';
 import forecast from '../assets/forecast.svg';
 import work_tabel from '../assets/work_tabel.svg';
+import main_doc from '../assets/main_doc.svg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useGetMeQuery } from '../store/api/auth/authApi';
 
@@ -18,6 +19,19 @@ export const SideBar = () => {
     >
       <img src={logo} alt={'logo'} />
       <div className={'flex flex-col gap-[10px]'}>
+        {localStorage.getItem('role') === 'doc' && (
+          <Link
+            to={'/lk'}
+            className={`${location.pathname.includes('doctor') ? 'bg-[#E5F6FF]' : 'bg-white'} p-2  rounded-[10px]`}
+          >
+            <div className={'flex flex-col items-center'}>
+              <img className={'w-[60px] h-[58px]'} src={main_doc} alt={'doc'} />
+              <span className={'text-[18px] font-[600] text-center'}>
+                Анализ прогноза
+              </span>
+            </div>
+          </Link>
+        )}
         {localStorage.getItem('role') === 'HR' && (
           <Link
             to={'/employees'}

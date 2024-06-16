@@ -9,6 +9,7 @@ import { ForecastPage } from './pages/forecast/page';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { _404Page } from './pages/404/page';
+import { DoctorPage } from './pages/doctor/page';
 
 function App() {
   return (
@@ -71,6 +72,14 @@ function App() {
             element={
               <AdminLayout>
                 <_404Page />
+              </AdminLayout>
+            }
+          />
+          <Route
+            path="/lk"
+            element={
+              <AdminLayout>
+                <DoctorPage />
               </AdminLayout>
             }
           />

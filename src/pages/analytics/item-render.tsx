@@ -38,6 +38,7 @@ export const DocItem = ({
   };
 
   const handleSubmit = () => {
+    console.log(item);
     if (!weekReportSelector?.weekNumber) {
       toast.warning('Откройте отчет за неделю!', {
         position: 'top-right',
@@ -69,14 +70,48 @@ export const DocItem = ({
       return;
     }
 
+    if (!selectedModality || !inputValue) {
+      let type = '';
+      if (!selectedModality) {
+        type = 'выбрали Модальность';
+      } else {
+        type = 'ввели Часы';
+      }
+      toast.warning(`Вы не ${type}`, {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+
+      return;
+    }
+
     if (selectedModality && inputValue) {
       const modalityToAdd = {
         // @ts-ignore
         ...selectedModality,
         hours: parseFloat(inputValue),
       };
+
+      getToolTip([
+        {
+          doctorId: item.doctorId,
+          modality: modalityToAdd.defaultModality,
+          typeModality: modalityToAdd.defaultTypeModality,
+          hours: modalityToAdd.hours,
+        },
+      ])
+        .unwrap()
+        .then((response) => {
+          console.log(response);
+        });
       // Логика для добавления данных
-      console.log(modalityToAdd);
+      console.log(modalityToAdd, 'LASDLLASD');
     }
   };
 

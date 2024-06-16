@@ -11,26 +11,44 @@ export const AuthorizationPage: React.FC = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleButtonClick = (type: string) => {
-    setLogin('admin');
-    setPassword('admin');
-    setLoading(true);
-    authTrigger({
+  const passwords = [
+    {
+      type: 'manager',
       login: 'admin',
       password: 'admin',
+    },
+    {
+      type: 'hr',
+      login: 'hr',
+      password: 'admin',
+    },
+    {
+      type: 'doc',
+      login: 'demo150',
+      password: 'admin',
+    },
+  ];
+
+  const handleLogin = () => {
+    setLoading(true);
+    authTrigger({
+      login: login,
+      password: password,
     })
       .unwrap()
       .then((res) => {
-        localStorage.setItem('role', type);
+        console.log(res);
+        const role = res.roles[0];
+        localStorage.setItem('role', role);
         Cookies.set('accessToken', res.token);
         Cookies.set('expired', res.expired);
-        if (type === 'hr') {
+        if (role === 'HR') {
           navigate('/employees');
         }
-        if (type === 'manager') {
+        if (role === 'HEAD_DEPARTMENT') {
           navigate('/analytics');
         }
-        if (type === 'doc') {
+        if (role === 'DOCTOR') {
           navigate('/404');
         }
       })
@@ -38,6 +56,14 @@ export const AuthorizationPage: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const handleButtonClick = (type: string) => {
+    const credentials =
+      passwords[passwords.findIndex((password) => password.type === type)];
+
+    setLogin(credentials.login);
+    setPassword(credentials.password);
   };
 
   return (
@@ -60,7 +86,7 @@ export const AuthorizationPage: React.FC = () => {
             </label>
             <input
               value={login}
-              disabled
+              onChange={(event) => setLogin(event.target.value)}
               id="username"
               type="text"
               placeholder="Введите логин..."
@@ -76,13 +102,30 @@ export const AuthorizationPage: React.FC = () => {
             </label>
             <input
               value={password}
-              disabled
+              onChange={(event) => setPassword(event.target.value)}
               id="password"
               type="password"
               placeholder="Введите пароль..."
               className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
             />
           </div>
+          <div className={'flex gap-[10px] items-center'}>
+            <button
+              onClick={handleLogin}
+              className="w-full py-2 px-4 bg-black h-[60px]  text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+            >
+              Войти
+            </button>
+          </div>
+          <hr />
+          <hr />
+          <hr />
+          <hr />
+          <hr />
+          <hr />
+          <hr />
+          <hr />
+          <hr />
           <div className={'flex gap-[10px] items-center'}>
             <button
               onClick={() => handleButtonClick('doc')}

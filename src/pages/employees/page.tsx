@@ -34,8 +34,10 @@ export const EmployeesPage = () => {
 
   useEffect(() => {
     docsTrigger({
-      userIds: idsDocd,
       page: page,
+      body: {
+        userIds: idsDocd,
+      },
     })
       .unwrap()
       .then((res) => {

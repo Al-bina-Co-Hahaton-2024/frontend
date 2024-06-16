@@ -28,8 +28,15 @@ import black_arrow from '../../assets/black_arrow.svg';
 import { DocItem } from './item-render';
 import { translateModality } from '../../utils/transform';
 import { DocGroupsSearch } from './search';
+import { useAppDispatch, useAppSelector } from '../../store/hooks/storeHooks';
+import { setWeekReport } from '../../store/reducers/serviceSlice';
 
 export const AnalyticsPage = () => {
+  const dispatch = useAppDispatch();
+  const weekReportSelector = useAppSelector(
+    (state) => state.serviceSlice.weekReport
+  );
+
   const [docsFio] = useGetFioDocsByIdMutation();
 
   const [getGraph] = useLazyGetGraphOnMonthQuery();
@@ -161,6 +168,7 @@ export const AnalyticsPage = () => {
                             weekStatus.workloads,
                             weekStatus.actual
                           ),
+                          weekNumber: weekStatus.weekNumber,
                           end_time: moment(
                             `${element.date}T20:59:00`
                           ).valueOf(),
@@ -291,7 +299,7 @@ export const AnalyticsPage = () => {
       .catch(() => {});
   };
 
-  console.log(report);
+  console.log(weekReportSelector);
 
   if (!groupsTimeline && !itemsTimeline) return <div>Loading...</div>;
   return (
@@ -359,7 +367,9 @@ export const AnalyticsPage = () => {
                       borderTopLeftRadius: '10px',
                       borderTopRightRadius: '10px',
                     }}
-                    onClick={() => setReport(week)}
+                    onClick={() => {
+                      dispatch(setWeekReport(week));
+                    }}
                   >
                     <div
                       className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
@@ -409,62 +419,66 @@ export const AnalyticsPage = () => {
         }
       >
         <div
-          className={` h-[80%] rounded-br-[20px] bg-white flex flex-col ${report ? '' : 'justify-center'}`}
+          className={` h-[80%] rounded-br-[20px] bg-white flex flex-col ${weekReportSelector ? '' : 'justify-center'}`}
         >
-          {!report && (
+          {!weekReportSelector && (
             <span
               className={'text-[#00000033] text-center font-[600] text-[18px]'}
             >
               Нажмите «Смотреть отчёт», чтобы увидеть данные...
             </span>
           )}
-          {report && (
+          {weekReportSelector && (
             <div className={'flex flex-col '}>
               <div
-                className={`flex flex-col p-[20px] h-[80px] rounded-tr-[20px] ${report.status === 'green' && 'bg-[#4FDE77]'} ${report.status === 'yellow' && 'bg-[#FFA842]'} ${report.status === 'gray' && 'bg-black'} m-[1px]`}
+                className={`flex flex-col p-[20px] h-[80px] rounded-tr-[20px] ${weekReportSelector.status === 'green' && 'bg-[#4FDE77]'} ${weekReportSelector.status === 'yellow' && 'bg-[#FFA842]'} ${weekReportSelector.status === 'gray' && 'bg-black'} m-[1px]`}
               >
                 <div className={' font-[700] text-[18px] text-white'}>
                   Отчёт
                 </div>
                 <div className={'font-[600] text-[14px] text-white'}>
-                  Неделеля № {report.weekNumber}
+                  Неделеля № {weekReportSelector.weekNumber}
                 </div>
               </div>
 
               <div className={'flex flex-col gap-[10px] px-[20px] mt-[20px] '}>
-                {translateModality(report.workloads).map((element) => (
-                  <div className={'flex flex-col'}>
-                    <div className={'flex items-center gap-[5px]'}>
-                      <div className={'w-[80px] text-[18px] overflow-hidden'}>
-                        {element.modality}
+                {translateModality(weekReportSelector.workloads).map(
+                  (element) => (
+                    <div className={'flex flex-col'}>
+                      <div className={'flex items-center gap-[5px]'}>
+                        <div className={'w-[80px] text-[18px] overflow-hidden'}>
+                          {element.modality}
+                        </div>
+                        <div>-</div>
+                        <div className={'text-[14px] font-bold'}>
+                          {element.work} / {element.workload}
+                        </div>
                       </div>
-                      <div>-</div>
-                      <div className={'text-[14px] font-bold'}>
-                        {element.work} / {element.workload}
+                      <div
+                        className={
+                          'flex items-center gap-[2px] justify-between'
+                        }
+                      >
+                        {Array.from({
+                          length: Math.min(
+                            10,
+                            Math.floor((element.work / element.workload) * 10)
+                          ),
+                        }).map((_, index) => {
+                          const els = Math.floor(
+                            (element.work / element.workload) * 10
+                          );
+                          return (
+                            <div
+                              key={index}
+                              className={`${els >= 10 && 'bg-green-600'} ${els < 10 && els > 5 && 'bg-orange-600'} ${els <= 5 && 'bg-red-600'} w-[10px] h-[10px] grow`}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
-                    <div
-                      className={'flex items-center gap-[2px] justify-between'}
-                    >
-                      {Array.from({
-                        length: Math.min(
-                          10,
-                          Math.floor((element.work / element.workload) * 10)
-                        ),
-                      }).map((_, index) => {
-                        const els = Math.floor(
-                          (element.work / element.workload) * 10
-                        );
-                        return (
-                          <div
-                            key={index}
-                            className={`${els >= 10 && 'bg-green-600'} ${els < 10 && els > 5 && 'bg-orange-600'} ${els <= 5 && 'bg-red-600'} w-[10px] h-[10px] grow`}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
           )}

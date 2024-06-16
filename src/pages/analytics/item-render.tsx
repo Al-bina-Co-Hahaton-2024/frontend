@@ -4,6 +4,8 @@ import { useGetToolTipModalityMutation } from '../../store/api/schedule/planer';
 import { translateModality } from '../../utils/transform';
 import { ModalPortal } from './moda-portal';
 import zamok from '../../assets/zamok.svg';
+import { useAppSelector } from '../../store/hooks/storeHooks';
+import { toast } from 'react-toastify';
 
 export const DocItem = ({
   item,
@@ -11,6 +13,10 @@ export const DocItem = ({
   getItemProps,
   getResizeProps,
 }) => {
+  const weekReportSelector = useAppSelector(
+    (state) => state.serviceSlice.weekReport
+  );
+
   const [getToolTip] = useGetToolTipModalityMutation();
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
@@ -21,13 +27,9 @@ export const DocItem = ({
   const [modalData, setModalData] = useState(null);
 
   const [selectedModality, setSelectedModality] = useState<any>(null);
-  const [inputValue, setInputValue] = useState<any>('');
+  const [inputValue, setInputValue] = useState<any>(item.manualExtraHours);
 
   const handleRadioChange = (modality) => {
-    const f = translateModality(modalData).find(
-      (el) => el.modality === modality.modality
-    );
-    setInputValue(f.hours);
     setSelectedModality(modality);
   };
 
@@ -36,6 +38,37 @@ export const DocItem = ({
   };
 
   const handleSubmit = () => {
+    if (!weekReportSelector?.weekNumber) {
+      toast.warning('Откройте отчет за неделю!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+
+      return;
+    }
+    console.log(weekReportSelector, item);
+
+    if (item.weekNumber !== weekReportSelector.weekNumber) {
+      toast.warning('Сохраните отчет за текущую неделю!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+
+      return;
+    }
+
     if (selectedModality && inputValue) {
       const modalityToAdd = {
         // @ts-ignore

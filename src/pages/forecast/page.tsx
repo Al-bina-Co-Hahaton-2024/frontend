@@ -53,6 +53,7 @@ export const ForecastPage = () => {
   );
 
   const [numbersOfWeek, setNumbersOfWeek] = useState<number[]>([]);
+  const [load, setLoad] = useState(false);
 
   const [selectedWorkload, setSelectedWorkload] = useState<string>('');
   const [workloads, setWorkloads] = useState<string[]>();
@@ -77,6 +78,7 @@ export const ForecastPage = () => {
   }, [currentYear, handler]);
 
   useEffect(() => {
+    setLoad(true);
     if (numbersOfWeek.length === 0) {
       return;
     }
@@ -106,6 +108,7 @@ export const ForecastPage = () => {
         setWorkloads(workloads);
         setSelectedWorkload(workloads[0]);
         setWorkloadData(storage);
+        setLoad(false);
       })
       .catch((e) => {
         setCurrentYear(2024);
@@ -177,6 +180,7 @@ export const ForecastPage = () => {
   };
 
   const xMode = () => {
+    setLoad(true);
     _({
       year: editableWeek.year,
       type: editableWeek.typeModality,
@@ -201,6 +205,9 @@ export const ForecastPage = () => {
           progress: undefined,
           theme: 'light',
         });
+      })
+      .finally(() => {
+        setLoad(false);
       });
   };
 
@@ -253,6 +260,7 @@ export const ForecastPage = () => {
         <div className={'w-full max-h-[300px]'}>
           <Line width={800} data={data} options={options} />
         </div>
+        {load && <div>Загрузка...</div>}
         <div className={'flex gap-1'}>
           <div
             className={
@@ -323,8 +331,9 @@ export const ForecastPage = () => {
                 />
                 <div className={'flex gap-2 grow mt-2'}>
                   <button
+                    disabled={load}
                     onClick={xMode}
-                    className={'bg-[#00A3FF] p-2 rounded hover:opacity-50'}
+                    className={`bg-[#00A3FF] p-2 rounded hover:opacity-50 ${load && ' opacity-20'}`}
                   >
                     Подтвердить изменения
                   </button>

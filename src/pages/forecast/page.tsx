@@ -164,6 +164,9 @@ export const ForecastPage = () => {
       },
     ],
   };
+
+  console.log(workloadData);
+  console.log(selectedWorkload);
   return (
     <div
       className={
@@ -210,7 +213,10 @@ export const ForecastPage = () => {
             );
           })}
         </div>
-        <Line data={data} options={options} />
+        <div className={'w-full max-h-[300px]'}>
+          <Line width={800} data={data} options={options} />
+        </div>
+        <div className={'flex items-center'}></div>
       </div>
     </div>
   );

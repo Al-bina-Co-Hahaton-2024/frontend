@@ -34,6 +34,7 @@ import { toast } from 'react-toastify';
 import { EmptyItem } from './emptyItem';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { Tooltip } from 'primereact/tooltip';
 
 export const AnalyticsPage = () => {
   const dispatch = useAppDispatch();
@@ -464,7 +465,7 @@ export const AnalyticsPage = () => {
 
   return (
     <div
-      className={'w-[1700px] flex gap-[2px] mx-auto my-[30px] rounded relative'}
+      className={'w-[1700px] flex gap-[2px] mx-auto my-[10px] rounded relative'}
     >
       <button
         onClick={handleGetReport}
@@ -503,10 +504,23 @@ export const AnalyticsPage = () => {
           <div
             onWheel={handleWheel}
             onScroll={handleScroll}
-            className={'w-full bg-white mt-12'}
+            className={'w-full bg-white mt-20'}
           >
             <div className="relative -top-10 z-[1000] translate-x-[350px]">
               {weeks.map((week, index) => {
+                if (week && week.dayWorkloads) {
+                  const sortedWorkloads = [...week.dayWorkloads]?.sort(
+                    (
+                      a: { date: string; doctors: number },
+                      b: { date: string; doctors: number }
+                    ) => {
+                      return (
+                        new Date(a?.date)?.getTime() -
+                        new Date(b?.date)?.getTime()
+                      );
+                    }
+                  );
+                }
                 const weekWidth = 26.413 * 7;
                 const left = 187.4 * index;
                 return (
@@ -515,10 +529,10 @@ export const AnalyticsPage = () => {
                     className="week-label"
                     style={{
                       position: 'absolute',
-                      top: '40px',
+                      top: '20px',
                       left: `${left}px`, // Точное смещение влево
                       width: `${weekWidth}px`, // Точное расширение ширины
-                      height: '60px',
+                      height: '80px',
                       backgroundColor:
                         week.status === 'green'
                           ? 'rgba(79, 222, 119, 0.3)'
@@ -543,7 +557,7 @@ export const AnalyticsPage = () => {
                     }}
                   >
                     <div
-                      className={`flex items-center gap-[5px] px-[6px] -translate-y-2 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
+                      className={`flex items-center gap-[5px] px-[6px] -translate-y-5 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
                     >
                       <div className={'w-[16px] h-[16px]'}>
                         {week.status === 'green' && (
@@ -559,6 +573,30 @@ export const AnalyticsPage = () => {
                       <div className={'font-[600] text-[18px] text-white'}>
                         Смотреть отчёт
                       </div>
+                    </div>
+                    <div
+                      className={
+                        'absolute w-full flex translate-y-1 translate-x-[1px]'
+                      }
+                    >
+                      {week?.dayWorkloads?.map((el) => {
+                        return (
+                          <>
+                            <div
+                              className={
+                                'text-center w-[27px] text-sm font-semibold border-l border-l-black'
+                              }
+                              data-pr-tooltip={`Врачей в смене: ${el?.doctors}`}
+                              data-pr-position="top"
+                              data-pr-classname="bg-black rounded p-2 translate-y-10 text-white z-[9999]"
+                              id={`doctor-${el?.date}`}
+                            >
+                              {el?.doctors}
+                            </div>
+                            <Tooltip target={`#doctor-${el?.date}`} />
+                          </>
+                        );
+                      })}
                     </div>
                   </div>
                 );

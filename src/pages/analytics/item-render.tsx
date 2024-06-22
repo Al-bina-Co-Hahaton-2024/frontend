@@ -220,10 +220,10 @@ export const DocItem = ({
           style: {
             color: 'white',
             borderRadius: 4,
-            border: '1px solid blue',
             height: '100%',
             lineHeight: 'normal',
             position: 'relative',
+            border: 'none',
           },
           className,
         })}

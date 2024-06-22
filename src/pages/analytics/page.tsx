@@ -480,6 +480,7 @@ export const AnalyticsPage = () => {
       e.stopPropagation();
     }
   };
+  const weekStr = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 
   return (
     <div
@@ -552,10 +553,10 @@ export const AnalyticsPage = () => {
                       className="week-label"
                       style={{
                         position: 'absolute',
-                        top: '20px',
+                        top: '-10px',
                         left: `${left}px`, // Точное смещение влево
                         width: `${weekWidth}px`, // Точное расширение ширины
-                        height: '80px',
+                        height: '110px',
                         backgroundColor:
                           week.status === 'green'
                             ? 'rgba(79, 222, 119, 0.3)'
@@ -569,6 +570,7 @@ export const AnalyticsPage = () => {
                         zIndex: '1',
                         borderTopLeftRadius: '10px',
                         borderTopRightRadius: '10px',
+                        borderLeft: '1px solid black',
                       }}
                       onClick={() => {
                         dispatch(
@@ -616,6 +618,24 @@ export const AnalyticsPage = () => {
                             </>
                           );
                         })}
+                      </div>
+                      <div
+                        className={
+                          'absolute w-full flex translate-y-6 translate-x-[1px]'
+                        }
+                      >
+                        {weekStr.map((el) => (
+                          <>
+                            <div
+                              className={`text-center text-sm text-gray-500`}
+                              style={{
+                                width: `${Number(dateWidth).toFixed(0)}px`,
+                              }}
+                            >
+                              {el}
+                            </div>
+                          </>
+                        ))}
                       </div>
                     </div>
                   );

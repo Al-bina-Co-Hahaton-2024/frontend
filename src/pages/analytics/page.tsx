@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
@@ -258,7 +258,7 @@ export const AnalyticsPage = () => {
       });
   }, [getGraph, visibleTimeStart]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element: any = document.querySelector('.rct-calendar-header ');
     if (element !== null) {
       const div = element?.lastChild?.childNodes[0]?.style;

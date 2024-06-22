@@ -216,7 +216,46 @@ export const ForecastPage = () => {
         <div className={'w-full max-h-[300px]'}>
           <Line width={800} data={data} options={options} />
         </div>
-        <div className={'flex items-center'}></div>
+        <div className={'flex gap-1'}>
+          <div
+            className={
+              'w-1/2 flex flex-col h-[400px] overflow-y-scroll  rounded border'
+            }
+          >
+            <div className={'flex p-2'}>
+              <div className={'w-[120px] text-sm'}>Год</div>
+              <div className={'w-[120px] text-sm'}>Неделя</div>
+              <div className={'w-[220px] text-sm'}>Фактич. Значение</div>
+              <div className={'w-[120px] text-sm'}>Прогноз</div>
+              <div className={'w-[120px] text-sm'}>Погрешность</div>
+            </div>
+            {workloadData.get(selectedWorkload)?.map((el) => {
+              let tmp: null | number = null;
+              if (!(isNaN(el.generatedValue) || isNaN(el.manualValue))) {
+                tmp = Math.abs(
+                  (el.manualValue / el.generatedValue) * 100 - 100
+                );
+              }
+              return (
+                <div
+                  // onClick={() => }
+                  className={'flex p-2 hover:bg-gray-400 cursor-pointer'}
+                >
+                  <div className={'w-[120px] text-sm'}>{currentYear}</div>
+                  <div className={'w-[120px] text-sm'}>{el.weekNumber}</div>
+                  <div className={'w-[220px] text-sm'}>
+                    {isNaN(el.manualValue) ? '-' : el.manualValue}
+                  </div>
+                  <div className={'w-[120px] text-sm'}>
+                    {isNaN(el.generatedValue) ? '-' : el.generatedValue}
+                  </div>
+                  <div className={'w-[120px] text-sm'}>{tmp ? tmp : '-'}%</div>
+                </div>
+              );
+            })}
+          </div>
+          <div className={'w-1/2'}></div>
+        </div>
       </div>
     </div>
   );

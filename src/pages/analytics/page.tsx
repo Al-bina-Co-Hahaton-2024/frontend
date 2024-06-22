@@ -606,7 +606,10 @@ export const AnalyticsPage = () => {
                           return (
                             <>
                               <div
-                                className={`text-center w-[${Number(dateWidth).toFixed(0)}px] text-sm font-semibold border-l border-l-black`}
+                                className={`text-center text-sm font-semibold border-l border-l-black`}
+                                style={{
+                                  width: `${Number(dateWidth).toFixed(0)}px`,
+                                }}
                               >
                                 {el?.doctors}
                               </div>

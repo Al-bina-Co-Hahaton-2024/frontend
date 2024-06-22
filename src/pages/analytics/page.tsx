@@ -34,7 +34,7 @@ import { toast } from 'react-toastify';
 import { EmptyItem } from './emptyItem';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Tooltip } from 'primereact/tooltip';
+import { useThrottle } from './throttle';
 
 export const AnalyticsPage = () => {
   const dispatch = useAppDispatch();
@@ -80,7 +80,10 @@ export const AnalyticsPage = () => {
   const [emptyItem, setEmptyItem] = useState<null | any>(null);
   const [timeEmpty, setTimeEmpty] = useState(null);
 
+  const [dateWidth, setDateWidth] = useState<null | string | number>(null);
+
   const [reportLoading, setReportLoading] = useState(false);
+  const timeLineRef = useRef(null);
 
   useEffect(() => {
     const weeksDates: any = [];
@@ -255,6 +258,21 @@ export const AnalyticsPage = () => {
       });
   }, [getGraph, visibleTimeStart]);
 
+  useEffect(() => {
+    const element: any = document.querySelector('.rct-calendar-header ');
+    if (element !== null) {
+      const div = element?.lastChild?.childNodes[0]?.style;
+
+      const t = setTimeout(() => {
+        setDateWidth(div.width.slice(0, -2));
+      }, 1000);
+
+      return () => {
+        clearTimeout(t);
+      };
+    }
+  }, [loading]);
+
   const handleOnEmptyCanvasClick = (docId, time, e) => {
     getAllDoctors({})
       .unwrap()
@@ -328,7 +346,7 @@ export const AnalyticsPage = () => {
   const [currentMonth, setCurrentMonth] = useState(moment().month());
   const [currentYear, setCurrentYear] = useState(moment().year());
 
-  const handlePreviousMonth = () => {
+  const handlePreviousMonth = useThrottle(() => {
     setLoading(true);
     const newMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const newYear = currentMonth === 0 ? currentYear - 1 : currentYear;
@@ -346,9 +364,9 @@ export const AnalyticsPage = () => {
       .add(14, 'days');
     setVisibleTimeStart(newStartOfMonth.valueOf());
     setVisibleTimeEnd(newEndOfMonth.valueOf());
-  };
+  }, 1000);
 
-  const handleNextMonth = () => {
+  const handleNextMonth = useThrottle(() => {
     setLoading(true);
     const newMonth = currentMonth === 11 ? 0 : currentMonth + 1;
     const newYear = currentMonth === 11 ? currentYear + 1 : currentYear;
@@ -366,7 +384,7 @@ export const AnalyticsPage = () => {
       .add(14, 'days');
     setVisibleTimeStart(newStartOfMonth.valueOf());
     setVisibleTimeEnd(newEndOfMonth.valueOf());
-  };
+  }, 1000);
 
   const handleGenerateGraph = () => {
     setLoading(true);
@@ -477,10 +495,14 @@ export const AnalyticsPage = () => {
           Скачать табель
         </span>
       </button>
-      <DocGroupsSearch
-        setGroups={setGroupsTimeline}
-        startDate={moment(visibleTimeStart).add(1, 'week').format('YYYY-MM-DD')}
-      />
+      {groupsTimeline && itemsTimeline && !loading && (
+        <DocGroupsSearch
+          setGroups={setGroupsTimeline}
+          startDate={moment(visibleTimeStart)
+            .add(1, 'week')
+            .format('YYYY-MM-DD')}
+        />
+      )}
 
       <div className="w-full max-w-md mx-auto mt-4 absolute  z-[8000] left-[35%] -top-[10px] border rounded-[10px] p-1">
         <div className="flex justify-between items-center">
@@ -506,100 +528,101 @@ export const AnalyticsPage = () => {
             onScroll={handleScroll}
             className={'w-full bg-white mt-28'}
           >
-            <div className="relative -top-10 z-[1000] translate-x-[350px]">
-              {weeks.map((week, index) => {
-                if (week && week.dayWorkloads) {
-                  const sortedWorkloads = [...week.dayWorkloads]?.sort(
-                    (
-                      a: { date: string; doctors: number },
-                      b: { date: string; doctors: number }
-                    ) => {
-                      return (
-                        new Date(a?.date)?.getTime() -
-                        new Date(b?.date)?.getTime()
-                      );
-                    }
-                  );
-                }
-                const weekWidth = 26.413 * 7;
-                const left = 187.4 * index;
-                return (
-                  <div
-                    key={index}
-                    className="week-label"
-                    style={{
-                      position: 'absolute',
-                      top: '20px',
-                      left: `${left}px`, // Точное смещение влево
-                      width: `${weekWidth}px`, // Точное расширение ширины
-                      height: '80px',
-                      backgroundColor:
-                        week.status === 'green'
-                          ? 'rgba(79, 222, 119, 0.3)'
-                          : week.status === 'yellow'
-                            ? 'rgba(255, 168, 66, 0.3)'
-                            : 'rgba(128, 128, 128, 0.3)',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                      zIndex: '1',
-                      borderTopLeftRadius: '10px',
-                      borderTopRightRadius: '10px',
-                    }}
-                    onClick={() => {
-                      dispatch(
-                        setWeekReport({
-                          perfomance: week,
-                          current: week,
-                        })
-                      );
-                    }}
-                  >
-                    <div
-                      className={`flex items-center gap-[5px] px-[6px] -translate-y-5 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
-                    >
-                      <div className={'w-[16px] h-[16px]'}>
-                        {week.status === 'green' && (
-                          <img src={acceptance_report} alt={'acc'} />
-                        )}
-                        {week.status === 'yellow' && (
-                          <img src={warning_report} alt={'warning'} />
-                        )}
-                        {week.status === 'gray' && (
-                          <img src={warning_report} alt={'null'} />
-                        )}
-                      </div>
-                      <div className={'font-[600] text-[18px] text-white'}>
-                        Смотреть отчёт
-                      </div>
-                    </div>
-                    <div
-                      className={
-                        'absolute w-full flex translate-y-1 translate-x-[1px]'
-                      }
-                    >
-                      {week?.dayWorkloads?.map((el) => {
+            {dateWidth && (
+              <div className="relative -top-10 z-[1000] translate-x-[350px]">
+                {weeks.map((week, index) => {
+                  if (week && week.dayWorkloads) {
+                    const sortedWorkloads = [...week.dayWorkloads]?.sort(
+                      (
+                        a: { date: string; doctors: number },
+                        b: { date: string; doctors: number }
+                      ) => {
                         return (
-                          <>
-                            <div
-                              className={
-                                'text-center w-[27px] text-sm font-semibold border-l border-l-black'
-                              }
-                            >
-                              {el?.doctors}
-                            </div>
-                          </>
+                          new Date(a?.date)?.getTime() -
+                          new Date(b?.date)?.getTime()
                         );
-                      })}
+                      }
+                    );
+                  }
+                  const weekWidth = Number(dateWidth) * 7;
+                  const left = Number(dateWidth) * 7 * index;
+                  return (
+                    <div
+                      key={index}
+                      className="week-label"
+                      style={{
+                        position: 'absolute',
+                        top: '20px',
+                        left: `${left}px`, // Точное смещение влево
+                        width: `${weekWidth}px`, // Точное расширение ширины
+                        height: '80px',
+                        backgroundColor:
+                          week.status === 'green'
+                            ? 'rgba(79, 222, 119, 0.3)'
+                            : week.status === 'yellow'
+                              ? 'rgba(255, 168, 66, 0.3)'
+                              : 'rgba(128, 128, 128, 0.3)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        zIndex: '1',
+                        borderTopLeftRadius: '10px',
+                        borderTopRightRadius: '10px',
+                      }}
+                      onClick={() => {
+                        dispatch(
+                          setWeekReport({
+                            perfomance: week,
+                            current: week,
+                          })
+                        );
+                      }}
+                    >
+                      <div
+                        className={`flex items-center gap-[5px] px-[6px] -translate-y-5 rounded-[20px] ${week.status === 'green' && 'bg-[#4FDE77]'} ${week.status === 'yellow' && 'bg-[#FFA842]'} ${week.status === 'gray' && 'bg-black'}`}
+                      >
+                        <div className={'w-[16px] h-[16px]'}>
+                          {week.status === 'green' && (
+                            <img src={acceptance_report} alt={'acc'} />
+                          )}
+                          {week.status === 'yellow' && (
+                            <img src={warning_report} alt={'warning'} />
+                          )}
+                          {week.status === 'gray' && (
+                            <img src={warning_report} alt={'null'} />
+                          )}
+                        </div>
+                        <div className={'font-[600] text-[18px] text-white'}>
+                          Смотреть отчёт
+                        </div>
+                      </div>
+                      <div
+                        className={
+                          'absolute w-full flex translate-y-1 translate-x-[1px]'
+                        }
+                      >
+                        {week?.dayWorkloads?.map((el) => {
+                          return (
+                            <>
+                              <div
+                                className={`text-center w-[${Number(dateWidth).toFixed(0)}px] text-sm font-semibold border-l border-l-black`}
+                              >
+                                {el?.doctors}
+                              </div>
+                            </>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
             {groupsTimeline && itemsTimeline && !loading && (
               <Timeline
+                ref={timeLineRef}
                 groups={groupsTimeline}
                 items={itemsTimeline}
                 defaultTimeStart={moment().startOf('month')}

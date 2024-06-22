@@ -161,7 +161,6 @@ export const DocItem = ({
   };
 
   const handleMouseEnter = (e) => {
-    console.log(item);
     const rect = e.target.getBoundingClientRect();
     const req = item.doctorWorks.map((el) => {
       return {

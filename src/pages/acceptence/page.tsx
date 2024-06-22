@@ -26,9 +26,9 @@ export const AcceptanceUsersPage = () => {
         }
       ></div>
       <div className={'w-full my-[30px] px-[65px] h-full flex flex-col z-10'}>
-        <HrDep />
-        <div className={'bg-[#00000026] w-full h-[1px] my-[20px]'}></div>
         <DocDep />
+        <div className={'bg-[#00000026] w-full h-[1px] my-[20px]'}></div>
+        <HrDep />
       </div>
 
       {isAppCard && <ApproovalCard />}

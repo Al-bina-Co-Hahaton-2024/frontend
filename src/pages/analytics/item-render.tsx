@@ -161,6 +161,7 @@ export const DocItem = ({
   };
 
   const handleMouseEnter = (e) => {
+    console.log(item);
     const rect = e.target.getBoundingClientRect();
     const req = item.doctorWorks.map((el) => {
       return {
@@ -212,7 +213,8 @@ export const DocItem = ({
   };
 
   const className = `${item.status === 'yellow' && '!bg-[#FFA842]'} ${item.status === 'green' && '!bg-[#4FDE77]'} ${item.status === 'gray' && '!bg-black'} ${privateExtras && '!bg-[#FFA842] opacity-60'}`;
-
+  const used = item.doctorWorks.reduce((acc, i) => acc + i.usedHours, 0);
+  const extras = item.doctorWorks.reduce((acc, i) => acc + i.usedExtraHours, 0);
   return (
     <>
       <div
@@ -240,6 +242,22 @@ export const DocItem = ({
               src={zamok}
               alt={'closed'}
             />
+          )}
+          <div
+            className={
+              'absolute font-bold translate-y-5 text-[14px] translate-x-[5px] z-[9000]'
+            }
+          >
+            {used.toFixed(0)}
+          </div>
+          {extras !== 0 && (
+            <div
+              className={
+                'absolute font-bold translate-y-10 text-[14px]  z-[9000]'
+              }
+            >
+              +{extras.toFixed(0)}
+            </div>
           )}
         </div>
         {isTooltipVisible && (

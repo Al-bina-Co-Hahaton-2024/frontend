@@ -104,7 +104,25 @@ export const DocGroupsSearch = ({ setGroups, startDate }) => {
     <>
       <div
         className={
-          'flex items-center gap-2 rounded-[20px] px-[25px] py-[12px] bg-white h-[40px] absolute z-[8000] top-14 left-2 border max-w-[200px] overflow-hidden'
+          'flex flex-col rounded-[20px] px-[10px] py-[12px] -translate-y-3 bg-white  absolute z-[8000] top-14   left-2 max-w-[400px] overflow-hidden'
+        }
+      >
+        <div className={'flex items-center gap-2'}>
+          <div className={'bg-[#4FDE77] w-10 h-1 rounded'} />
+          <div> — Оптимальный план работы</div>
+        </div>
+        <div className={'flex items-center gap-2'}>
+          <div className={'bg-[#FFA842] w-10 h-1 rounded'} />
+          <div> — Требуется корректировка</div>
+        </div>
+        <div className={'flex items-center gap-2'}>
+          <div className={'bg-black w-10 h-1 rounded'} />
+          <div> — Неактуальные данные</div>
+        </div>
+      </div>
+      <div
+        className={
+          'flex items-center gap-2 rounded-[20px] px-[25px] py-[12px] bg-white h-[40px] absolute z-[8000] top-32   left-2 border max-w-[200px] overflow-hidden'
         }
       >
         <img src={search} alt={'search'} />
@@ -119,7 +137,7 @@ export const DocGroupsSearch = ({ setGroups, startDate }) => {
       <select
         onChange={handleModalitySearch}
         className={
-          'absolute  rounded-[10px] px-[10px] py-[5px] bg-white h-[40px]  z-[8000] top-14 left-[220px] border max-w-[120px] overflow-hidden outline-none'
+          'absolute  rounded-[10px] px-[10px] py-[5px] bg-white h-[40px]  z-[8000] top-32  left-[220px] border max-w-[120px] overflow-hidden outline-none'
         }
       >
         <option value={''}>Все модальности</option>

@@ -498,13 +498,13 @@ export const AnalyticsPage = () => {
 
       <div className={'w-[90%] bg-white rounded relative overflow-hidden'}>
         {loading && (
-          <Skeleton className={'absolute top-24'} width="100%" height="100%" />
+          <Skeleton className={'absolute top-40'} width="100%" height="100%" />
         )}
         {groupsTimeline && itemsTimeline && !loading && (
           <div
             onWheel={handleWheel}
             onScroll={handleScroll}
-            className={'w-full bg-white mt-20'}
+            className={'w-full bg-white mt-28'}
           >
             <div className="relative -top-10 z-[1000] translate-x-[350px]">
               {weeks.map((week, index) => {
@@ -586,14 +586,9 @@ export const AnalyticsPage = () => {
                               className={
                                 'text-center w-[27px] text-sm font-semibold border-l border-l-black'
                               }
-                              data-pr-tooltip={`Врачей в смене: ${el?.doctors}`}
-                              data-pr-position="top"
-                              data-pr-classname="bg-black rounded p-2 translate-y-10 text-white z-[9999]"
-                              id={`doctor-${el?.date}`}
                             >
                               {el?.doctors}
                             </div>
-                            <Tooltip target={`#doctor-${el?.date}`} />
                           </>
                         );
                       })}

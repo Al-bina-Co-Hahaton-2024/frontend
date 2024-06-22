@@ -82,10 +82,21 @@ export const planerApi = baseApi.injectEndpoints({
         };
       },
     }),
+    xMode: builder.mutation({
+      query: (args) => {
+        const { modality, type, year, week, body } = args;
+        return {
+          url: `/reference/workloads/years/${year}/weeks/${week}/modalities/${modality}/types/${type}`,
+          method: 'PUT',
+          body,
+        };
+      },
+    }),
   }),
 });
 
 export const {
+  useXModeMutation,
   useGetAnalyzesWeeksMutation,
   usePatchWorkScheduleMutation,
   useGetGraphOnMonthQuery,

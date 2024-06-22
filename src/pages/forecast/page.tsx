@@ -14,6 +14,7 @@ import {
 import {
   useGetWorkloadMutation,
   useLazyGetWeekNumsQuery,
+  useXModeMutation,
 } from '../../store/api/schedule/planer';
 import { IWorkload } from './types';
 import { _MEDICAL_MODALITIES_WITH_TYPES } from '../../constants/constants';
@@ -21,6 +22,7 @@ import {
   useCreateForecastReportMutation,
   useLazyGetReportQuery,
 } from '../../store/api/export/exportApi';
+import { toast } from 'react-toastify';
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +40,14 @@ export const ForecastPage = () => {
 
   const [createForecastReport] = useCreateForecastReportMutation();
   const [getReport] = useLazyGetReportQuery();
-
+  const [editableWeek, setEditableWeek] = useState<any>({
+    weekNumber: null,
+    manualValue: null,
+    generatedValue: null,
+    year: null,
+    typeModality: null,
+    modality: null,
+  });
   const [currentYear, setCurrentYear] = useState<number>(
     new Date().getFullYear()
   );
@@ -50,6 +59,8 @@ export const ForecastPage = () => {
   const [workloadData, setWorkloadData] = useState<Map<string, IWorkload[]>>(
     new Map()
   );
+  const [handler, setHandler] = useState(new Date());
+  const [_] = useXModeMutation();
 
   useEffect(() => {
     weekNums([currentYear + '-12-31', currentYear + '-12-24'])
@@ -63,7 +74,7 @@ export const ForecastPage = () => {
       .catch((e) => {
         setCurrentYear(2024);
       });
-  }, [currentYear]);
+  }, [currentYear, handler]);
 
   useEffect(() => {
     if (numbersOfWeek.length === 0) {
@@ -99,7 +110,7 @@ export const ForecastPage = () => {
       .catch((e) => {
         setCurrentYear(2024);
       });
-  }, [numbersOfWeek]);
+  }, [numbersOfWeek, currentYear, handler]);
 
   const downloadForecast = () => {
     createForecastReport({
@@ -165,8 +176,34 @@ export const ForecastPage = () => {
     ],
   };
 
-  console.log(workloadData);
-  console.log(selectedWorkload);
+  const xMode = () => {
+    _({
+      year: editableWeek.year,
+      type: editableWeek.typeModality,
+      week: editableWeek.weekNumber,
+      modality: editableWeek.modality,
+      body: {
+        value: editableWeek.manualValue,
+      },
+    })
+      .unwrap()
+      .then((x) => {
+        setHandler(new Date());
+      })
+      .catch((err) => {
+        toast.error('Что-то пошло не так', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      });
+  };
+
   return (
     <div
       className={
@@ -232,13 +269,22 @@ export const ForecastPage = () => {
             {workloadData.get(selectedWorkload)?.map((el) => {
               let tmp: null | number = null;
               if (!(isNaN(el.generatedValue) || isNaN(el.manualValue))) {
-                tmp = Math.abs(
-                  (el.manualValue / el.generatedValue) * 100 - 100
-                );
+                tmp =
+                  ((Math.max(el.generatedValue, el.manualValue) -
+                    Math.min(el.generatedValue, el.manualValue)) /
+                    Math.min(el.generatedValue, el.manualValue)) *
+                  100;
               }
               return (
                 <div
-                  // onClick={() => }
+                  onClick={() => {
+                    setEditableWeek({
+                      ...el,
+                      year: currentYear,
+                      modality: selectedWorkload.split('_')[0],
+                      typeModality: selectedWorkload.split('_')[1],
+                    });
+                  }}
                   className={'flex p-2 hover:bg-gray-400 cursor-pointer'}
                 >
                   <div className={'w-[120px] text-sm'}>{currentYear}</div>
@@ -249,12 +295,66 @@ export const ForecastPage = () => {
                   <div className={'w-[120px] text-sm'}>
                     {isNaN(el.generatedValue) ? '-' : el.generatedValue}
                   </div>
-                  <div className={'w-[120px] text-sm'}>{tmp ? tmp : '-'}%</div>
+                  <div className={'w-[120px] text-sm'}>
+                    {tmp ? tmp.toFixed(2) : '-'}%
+                  </div>
                 </div>
               );
             })}
           </div>
-          <div className={'w-1/2'}></div>
+          {editableWeek.weekNumber ? (
+            <>
+              <div className={'w-1/2 p-2 rounded border'}>
+                <div className={'text-[24px] font-semibold'}>
+                  Редактиварование фактических значений
+                </div>
+                <div>Неделя № {editableWeek.weekNumber}</div>
+                <div>Фактическое значение</div>
+                <input
+                  onChange={(e) => {
+                    setEditableWeek({
+                      ...editableWeek,
+                      manualValue: e.target.value,
+                    });
+                  }}
+                  className={'border rounded'}
+                  type="number"
+                  value={editableWeek.manualValue}
+                />
+                <div className={'flex gap-2 grow mt-2'}>
+                  <button
+                    onClick={xMode}
+                    className={'bg-[#00A3FF] p-2 rounded hover:opacity-50'}
+                  >
+                    Подтвердить изменения
+                  </button>
+                  <button
+                    onClick={() =>
+                      setEditableWeek({
+                        weekNumber: null,
+                        manualValue: null,
+                        generatedValue: null,
+                        year: null,
+                        typeModality: null,
+                        modality: null,
+                      })
+                    }
+                    className={'bg-gray-400 p-2 rounded hover:opacity-50'}
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div
+              className={
+                'flex justify-center items-center text-center w-1/2 text-lg font-semibold'
+              }
+            >
+              &#8592; Выберите неделю
+            </div>
+          )}
         </div>
       </div>
     </div>

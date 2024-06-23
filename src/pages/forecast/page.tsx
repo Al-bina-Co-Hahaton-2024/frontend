@@ -577,9 +577,9 @@ export const ForecastDiffPage = () => {
 
       if (weekData === undefined) {
         return {
-          generatedValue: -1,
+          generatedValue: 0,
           weekNumber: weekNumber,
-          manualValue: -1,
+          manualValue: 0,
         };
       }
       return weekData;
@@ -685,8 +685,6 @@ export const ForecastDiffPage = () => {
   }, [numbersOfWeek]);
 
   useEffect(() => {
-    console.log(workloadData);
-
     const data: ChartDatasetProperties<'bar', number[]>[] = [];
 
     workloadData.forEach((workloadData, key) => {
@@ -714,7 +712,6 @@ export const ForecastDiffPage = () => {
       data.push(...result);
     });
 
-    console.log(data);
     setBarChartData(data);
   }, [workloadData]);
 
@@ -790,7 +787,11 @@ export const ForecastDiffPage = () => {
           </select>
         </div>
         <div className={'w-full h-[1000px] overflow-y-scroll'}>
-          <div className={`h-[3000px]`}>
+          <div
+            className={
+              `h-[` + Math.max(selectedYears.length * 2000, 1500) + 'px]'
+            }
+          >
             {load && <div> Загрузка... </div>}
             <Bar
               width={'100%'}

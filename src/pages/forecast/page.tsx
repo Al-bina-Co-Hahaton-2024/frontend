@@ -709,9 +709,14 @@ export const ForecastDiffPage = () => {
         ];
       });
 
-      data.push(...result);
+      data.push(
+        ...result.sort((a, b) =>
+          a.label > b.label ? 1 : b.label > a.label ? -1 : 0
+        )
+      );
     });
 
+    console.log(data);
     setBarChartData(data);
   }, [workloadData]);
 

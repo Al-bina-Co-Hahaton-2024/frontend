@@ -46,7 +46,10 @@ export const _REVERSED_MODALITIES_ = {
   ДЕНСИТОМЕТР: 'DENSITOMETER',
 };
 
+export const ALL_MODALITY = 'ALL_MODALITY';
+
 export const _MEDICAL_MODALITIES_WITH_TYPES = {
+  ALL_MODALITY: 'Все',
   RG_DEFAULT: 'РГ',
   MRT_DEFAULT: 'МРТ',
   MRT_U: 'МРТ У',

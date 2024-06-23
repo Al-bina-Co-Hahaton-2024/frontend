@@ -736,6 +736,7 @@ export const ForecastDiffPage = () => {
     plugins: {
       legend: {
         position: 'top' as const,
+        align: 'center' as const,
       },
       title: {
         display: false,

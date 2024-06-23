@@ -29,6 +29,7 @@ import {
 } from '../../store/api/export/exportApi';
 import { toast } from 'react-toastify';
 import { number, string } from 'yup';
+import { retry } from '@reduxjs/toolkit/query';
 
 ChartJS.register(
   CategoryScale,
@@ -551,6 +552,8 @@ export const ForecastDiffPage = () => {
   const [createForecastReport] = useCreateForecastReportMutation();
   const [getReport] = useLazyGetReportQuery();
 
+  const availableYears = [2022, 2023, 2024, 2025, 2026];
+
   const [selectedYears, setSelectedYears] = useState<number[]>([
     new Date().getFullYear(),
     new Date().getFullYear() - 1,
@@ -559,7 +562,7 @@ export const ForecastDiffPage = () => {
   const [numbersOfWeek, setNumbersOfWeek] = useState<Map<number, number[]>>(
     new Map([
       [2024, Array.from({ length: 52 }, (_, i) => i + 1)],
-      [2023, [1, 2, 3]],
+      [2023, Array.from({ length: 52 }, (_, i) => i + 1)],
     ])
   );
   const [load, setLoad] = useState(false);
@@ -572,70 +575,7 @@ export const ForecastDiffPage = () => {
     Map<number, Map<string, IWorkload[]>>
   >(new Map());
 
-  useEffect(() => {
-    setLoad(true);
-    if (numbersOfWeek.length === 0) {
-      return;
-    }
-    getWorkload({
-      year: currentYear,
-      weeks: numbersOfWeek,
-    })
-      .unwrap()
-      .then((data: any[]) => {
-        const storage = new Map<string, IWorkload[]>();
-        data.forEach((workload: any) => {
-          const key = workload.modality + '_' + workload.typeModality;
-          const value: IWorkload = {
-            weekNumber: workload.week,
-            manualValue:
-              workload.manualValue === null ? NaN : workload.manualValue,
-            generatedValue:
-              workload.generatedValue === null ? NaN : workload.generatedValue,
-          };
-          if (!storage.has(key)) {
-            storage.set(key, [value]);
-          } else {
-            storage.get(key)?.push(value);
-          }
-        });
-        const workloads = Array.from(storage.keys()).sort();
-
-        workloads.unshift(ALL_MODALITY);
-
-        setWorkloads(workloads);
-        setWorkloadData(storage);
-        setLoad(false);
-      })
-      .catch((e) => {
-        setCurrentYear(2024);
-      });
-  }, [numbersOfWeek, currentYear, handler]);
-
-  const downloadForecast = () => {
-    createForecastReport({
-      year: currentYear,
-    })
-      .unwrap()
-      .then((data: any) => {
-        const id = setInterval(() => {
-          getReport(data.id)
-            .unwrap()
-            .then((data: any) => {
-              if (data.status === 'SUCCESSFUL' || data.status === 'ERROR') {
-                clearInterval(id);
-              }
-
-              if (data.link !== null) {
-                window.location.href = data.link;
-              }
-            });
-        }, 300);
-        data.id;
-      });
-  };
-
-  function getWorkloadData(workload) {
+  function getWorkloadData(workloadData, workload) {
     const weekData = labels.map((weekNumber) => {
       let val = workloadData.get(workload);
       if (val == undefined) {
@@ -661,32 +601,98 @@ export const ForecastDiffPage = () => {
   }
 
   useEffect(() => {
-    const selectedWorkloads =
-      selectedWorkload === ALL_MODALITY
-        ? Array.from(workloadData.keys())
-        : [selectedWorkload];
+    setLoad(true);
+    const fetchData = async () => {
+      const as = Array.from(numbersOfWeek, ([key, value]) => {
+        return getWorkload({
+          year: key,
+          weeks: value,
+        }).then(
+          (result) => ({ year: key, data: result }),
+          (error) => ({ year: key, data: [] })
+        );
+      });
+      const result = new Map<number, Map<string, IWorkload[]>>();
+      const resultsPromise = await Promise.allSettled(as);
+      resultsPromise.forEach((el: any) => {
+        if (el.status === 'fulfilled') {
+          const val = el.value;
 
-    setBarChartData(
-      selectedWorkloads.flatMap((workload) => {
-        const data = getWorkloadData(workload);
+          const storage = new Map<string, IWorkload[]>();
+          val.data.data.forEach((workload: any) => {
+            const key = workload.modality + '_' + workload.typeModality;
+            const value: IWorkload = {
+              weekNumber: workload.week,
+              manualValue:
+                workload.manualValue === null ? NaN : workload.manualValue,
+              generatedValue:
+                workload.generatedValue === null
+                  ? NaN
+                  : workload.generatedValue,
+            };
+            if (!storage.has(key)) {
+              storage.set(key, [value]);
+            } else {
+              storage.get(key)?.push(value);
+            }
+          });
+          result.set(val.year, storage);
+        }
+      });
+      return result;
+    };
+    fetchData()
+      .then((result) => {
+        setWorkloadData(result);
+        setLoad(false);
+      })
+      .catch(() => {
+        toast.error('Что-то пошло не так !', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      });
+  }, [numbersOfWeek]);
+
+  useEffect(() => {
+    console.log(workloadData);
+
+    const data: ChartDatasetProperties<'bar', number[]>[] = [];
+
+    workloadData.forEach((workloadData, key) => {
+      const result = Array.from(workloadData.keys()).flatMap((workload) => {
+        const data = getWorkloadData(workloadData, workload);
+        const merged = data.generatedValues.map((value, index) => {
+          return !isNaN(data.manualValues[index]) &&
+            data.manualValues[index] !== undefined
+            ? data.manualValues[index]
+            : value;
+        });
         return [
           {
-            label: `${_MEDICAL_MODALITIES_WITH_TYPES[workload]}`,
-            data: data.generatedValues.map((value, index) =>
-              !isNaN(data.manualValues[index]) &&
-              data.manualValues[index] !== undefined
-                ? data.manualValues[index]
-                : value
-            ),
+            label: `${key} - ${_MEDICAL_MODALITIES_WITH_TYPES[workload]}`,
+            data: merged,
+            stack: key,
             borderColor:
               MODALITY_CHART_CONFIGURATION[workload].generatedValueColor,
             backgroundColor:
               MODALITY_CHART_CONFIGURATION[workload].generatedValueColor,
           },
         ];
-      })
-    );
-  }, [selectedWorkload, workloads]);
+      });
+
+      data.push(...result);
+    });
+
+    console.log(data);
+    setBarChartData(data);
+  }, [workloadData]);
 
   const options = {
     indexAxis: 'y' as const,
@@ -711,9 +717,18 @@ export const ForecastDiffPage = () => {
       },
     },
   };
-  const labels = numbersOfWeek;
+
+  let max = -1;
+  let labels: number[] = [];
+  numbersOfWeek.forEach((value) => {
+    const currentMax = Math.max(...value);
+    if (currentMax > max) {
+      labels = value;
+      max = currentMax;
+    }
+  });
   const chartBarData = {
-    labels,
+    labels: labels.map((weekNum) => `Неделя ${weekNum}`),
     datasets: barChartData,
   };
   return (
@@ -727,24 +742,10 @@ export const ForecastDiffPage = () => {
           <h2 className="text-xl font-bold">
             Разница Анализ прогноза исследований
           </h2>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setCurrentYear(currentYear - 1)}
-              className="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow"
-            >
-              &lt;
-            </button>
-            <span>{currentYear} | Производственные недели</span>
-            <button
-              onClick={() => setCurrentYear(currentYear + 1)}
-              className="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow"
-            >
-              &gt;
-            </button>
-          </div>
         </div>
         <div className={'w-full h-[1000px] overflow-y-scroll'}>
           <div className={`h-[3000px]`}>
+            {load && <div> Загрука... </div>}
             <Bar
               width={'100%'}
               height={`200%`}

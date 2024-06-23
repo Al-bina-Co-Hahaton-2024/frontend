@@ -232,9 +232,9 @@ export const ForecastPage = () => {
 
       if (weekData === undefined) {
         return {
-          generatedValue: -1,
+          generatedValue: 0,
           weekNumber: weekNumber,
-          manualValue: -1,
+          manualValue: 0,
         };
       }
       return weekData;
@@ -265,6 +265,7 @@ export const ForecastPage = () => {
                   ? data.manualValues[index]
                   : value
               ),
+              stack: 1,
               borderColor:
                 MODALITY_CHART_CONFIGURATION[workload].generatedValueColor,
               backgroundColor:
@@ -309,7 +310,7 @@ export const ForecastPage = () => {
     plugins: {
       legend: {
         position: 'top' as const,
-        align: 'start' as const,
+        align: 'center' as const,
       },
       title: {
         display: false,
@@ -317,6 +318,9 @@ export const ForecastPage = () => {
     },
     scales: {
       x: {
+        stacked: true,
+      },
+      y: {
         stacked: true,
       },
     },

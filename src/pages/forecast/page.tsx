@@ -549,21 +549,12 @@ export const ForecastDiffPage = () => {
   const [weekNums] = useLazyGetWeekNumsQuery();
   const [getWorkload] = useGetWorkloadMutation();
 
-  const [createForecastReport] = useCreateForecastReportMutation();
-  const [getReport] = useLazyGetReportQuery();
-
   const availableYears = [2022, 2023, 2024, 2025, 2026];
 
-  const [selectedYears, setSelectedYears] = useState<number[]>([
-    new Date().getFullYear(),
-    new Date().getFullYear() - 1,
-  ]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
 
   const [numbersOfWeek, setNumbersOfWeek] = useState<Map<number, number[]>>(
-    new Map([
-      [2024, Array.from({ length: 52 }, (_, i) => i + 1)],
-      [2023, Array.from({ length: 52 }, (_, i) => i + 1)],
-    ])
+    new Map()
   );
   const [load, setLoad] = useState(false);
 
@@ -599,6 +590,39 @@ export const ForecastDiffPage = () => {
       manualValues: weekData.map((week) => week.manualValue),
     };
   }
+
+  useEffect(() => {
+    setLoad(true);
+    const fetchData = async () => {
+      const as = selectedYears.map((currentYear) => {
+        return weekNums([currentYear + '-12-31', currentYear + '-12-24']).then(
+          (result) => ({ year: currentYear, data: result }),
+          (error) => ({ year: currentYear, data: [] })
+        );
+      });
+
+      const result = new Map<number, number[]>();
+      const resultsPromise = await Promise.allSettled(as);
+      resultsPromise.forEach((el: any) => {
+        if (el.status === 'fulfilled') {
+          const val = el.value;
+
+          const maxWeek: number = Math.max(
+            ...val.data.data.map((weekData) => weekData.weekNumber)
+          );
+          const weekNumbers = Array.from(Array(maxWeek).keys()).map(
+            (v) => v + 1
+          );
+          result.set(val.year, weekNumbers);
+        }
+      });
+      return result;
+    };
+    fetchData().then((result) => {
+      setNumbersOfWeek(result);
+      setLoad(false);
+    });
+  }, [selectedYears]);
 
   useEffect(() => {
     setLoad(true);
@@ -705,7 +729,7 @@ export const ForecastDiffPage = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right' as const,
+        position: 'top' as const,
       },
       title: {
         display: false,
@@ -743,9 +767,31 @@ export const ForecastDiffPage = () => {
             Разница Анализ прогноза исследований
           </h2>
         </div>
+        <div>
+          <select
+            multiple
+            id="balcony"
+            onChange={(e) => {
+              const options = e.target.options;
+              const value: number[] = [];
+              let i = 0,
+                l = options.length;
+              for (; i < l; i++) {
+                if (options[i].selected) {
+                  value.push(Number(options[i].value));
+                }
+              }
+              setSelectedYears(value);
+            }}
+          >
+            {availableYears.map((availableYear) => {
+              return <option value={availableYear}>{availableYear} Год</option>;
+            })}
+          </select>
+        </div>
         <div className={'w-full h-[1000px] overflow-y-scroll'}>
           <div className={`h-[3000px]`}>
-            {load && <div> Загрука... </div>}
+            {load && <div> Загрузка... </div>}
             <Bar
               width={'100%'}
               height={`200%`}

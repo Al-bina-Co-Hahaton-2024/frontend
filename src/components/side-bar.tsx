@@ -53,7 +53,7 @@ export const SideBar = () => {
             <div className={'flex flex-col items-center'}>
               <img className={'w-[60px] h-[58px]'} src={anketa} alt={'data'} />
               <span className={'text-[18px] font-[600] text-center'}>
-                Заявки на согласовании
+                Статус заявки
               </span>
             </div>
           </Link>

@@ -618,6 +618,7 @@ export const ForecastDiffPage = () => {
       });
       return result;
     };
+
     fetchData().then((result) => {
       setNumbersOfWeek(result);
       setLoad(false);
@@ -776,26 +777,7 @@ export const ForecastDiffPage = () => {
           </h2>
         </div>
         <div>
-          {/*<select*/}
-          {/*  multiple*/}
-          {/*  id="balcony"*/}
-          {/*  onChange={(e) => {*/}
-          {/*    const options = e.target.options;*/}
-          {/*    const value: number[] = [];*/}
-          {/*    let i = 0,*/}
-          {/*      l = options.length;*/}
-          {/*    for (; i < l; i++) {*/}
-          {/*      if (options[i].selected) {*/}
-          {/*        value.push(Number(options[i].value));*/}
-          {/*      }*/}
-          {/*    }*/}
-          {/*    setSelectedYears(value);*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  {availableYears.map((availableYear) => {*/}
-          {/*    return <option value={availableYear}>{availableYear} Год</option>;*/}
-          {/*  })}*/}
-          {/*</select>*/}
+          <div className={'font-semibold'}>Выберите даты</div>
           <MultiSelect
             options={opt}
             value={selectedYears.map((el) => ({

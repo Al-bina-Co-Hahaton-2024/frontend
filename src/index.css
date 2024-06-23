@@ -145,3 +145,44 @@ body {
 .pulse-animation {
     animation: pulse 1s;
 }
+
+.always-down .dropdown-container {
+    position: relative;
+    overflow: visible !important; /* Убирает внутренний скролл */
+}
+
+.always-down .dropdown-content {
+    position: absolute;
+    top: 100% !important;
+    left: 0;
+    z-index: 9999;
+    max-height: none !important; /* Снимает ограничение по высоте */
+    overflow-y: visible !important;  /* Делает контент видимым */
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ccc;
+}
+
+.always-down .dropdown-heading {
+    position: relative;
+    z-index: 1000;
+}
+
+.always-down .dropdown-container .dropdown-heading::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.always-down .dropdown-container .dropdown-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.always-down .dropdown-container .dropdown-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+.always-down .dropdown-container .dropdown-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+

@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { _404Page } from './pages/404/page';
 import { DoctorPage } from './pages/doctor/page';
+import { LayoutPageForecast } from './pages/forecast/layout-page';
 
 function App() {
   return (
@@ -55,15 +56,7 @@ function App() {
             path="/forecast"
             element={
               <AdminLayout>
-                <ForecastPage />
-              </AdminLayout>
-            }
-          />
-          <Route
-            path="/forecast_diff"
-            element={
-              <AdminLayout>
-                <ForecastDiffPage />
+                <LayoutPageForecast />
               </AdminLayout>
             }
           />

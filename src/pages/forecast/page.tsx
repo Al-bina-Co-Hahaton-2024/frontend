@@ -28,8 +28,7 @@ import {
   useLazyGetReportQuery,
 } from '../../store/api/export/exportApi';
 import { toast } from 'react-toastify';
-import { number, string } from 'yup';
-import { retry } from '@reduxjs/toolkit/query';
+import { MultiSelect } from 'react-multi-select-component';
 
 ChartJS.register(
   CategoryScale,
@@ -369,7 +368,7 @@ export const ForecastPage = () => {
   return (
     <div
       className={
-        'bg-white mt-[20px] w-[1450px] mx-auto flex flex-col items-center h-[95%] relative'
+        'bg-white mt-[20px] w-[1450px] mx-auto flex flex-col items-center h-[95%] relative  overflow-y-scroll'
       }
     >
       <div className="w-11/12 mx-auto mt-10">
@@ -418,7 +417,7 @@ export const ForecastPage = () => {
           {selectedWorkload === ALL_MODALITY ? (
             <Bar
               width={'100%'}
-              height={1000}
+              height={500}
               data={chartBarData}
               options={options}
             />
@@ -716,8 +715,6 @@ export const ForecastDiffPage = () => {
         )
       );
     });
-
-    console.log(data);
     setBarChartData(data);
   }, [workloadData]);
 
@@ -759,10 +756,17 @@ export const ForecastDiffPage = () => {
     labels: labels.map((weekNum) => `Неделя ${weekNum}`),
     datasets: barChartData,
   };
+
+  console.log(availableYears);
+  const opt = availableYears.map((el) => ({
+    label: String(el),
+    value: String(el),
+  }));
+
   return (
     <div
       className={
-        'bg-white mt-[20px] w-[1450px] mx-auto flex flex-col items-center h-[95%] relative'
+        'bg-white mt-[20px] w-[1450px] mx-auto flex flex-col items-center h-[95%] relative overflow-y-scroll'
       }
     >
       <div className="w-11/12 mx-auto mt-10">
@@ -772,28 +776,40 @@ export const ForecastDiffPage = () => {
           </h2>
         </div>
         <div>
-          <select
-            multiple
-            id="balcony"
-            onChange={(e) => {
-              const options = e.target.options;
-              const value: number[] = [];
-              let i = 0,
-                l = options.length;
-              for (; i < l; i++) {
-                if (options[i].selected) {
-                  value.push(Number(options[i].value));
-                }
-              }
-              setSelectedYears(value);
-            }}
-          >
-            {availableYears.map((availableYear) => {
-              return <option value={availableYear}>{availableYear} Год</option>;
-            })}
-          </select>
+          {/*<select*/}
+          {/*  multiple*/}
+          {/*  id="balcony"*/}
+          {/*  onChange={(e) => {*/}
+          {/*    const options = e.target.options;*/}
+          {/*    const value: number[] = [];*/}
+          {/*    let i = 0,*/}
+          {/*      l = options.length;*/}
+          {/*    for (; i < l; i++) {*/}
+          {/*      if (options[i].selected) {*/}
+          {/*        value.push(Number(options[i].value));*/}
+          {/*      }*/}
+          {/*    }*/}
+          {/*    setSelectedYears(value);*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  {availableYears.map((availableYear) => {*/}
+          {/*    return <option value={availableYear}>{availableYear} Год</option>;*/}
+          {/*  })}*/}
+          {/*</select>*/}
+          <MultiSelect
+            options={opt}
+            value={selectedYears.map((el) => ({
+              label: String(el),
+              value: String(el),
+            }))}
+            onChange={(selected) =>
+              setSelectedYears(selected.map((option) => option.value))
+            }
+            labelledBy="Select"
+            className="always-down"
+          />
         </div>
-        <div className={'w-full h-[1000px] overflow-y-scroll'}>
+        <div className={'w-full h-[1000px] '}>
           <div
             className={
               `h-[` + Math.max(selectedYears.length * 2000, 1500) + 'px]'
@@ -802,7 +818,7 @@ export const ForecastDiffPage = () => {
             {load && <div> Загрузка... </div>}
             <Bar
               width={'100%'}
-              height={`200%`}
+              height={500}
               data={chartBarData}
               options={options}
             />

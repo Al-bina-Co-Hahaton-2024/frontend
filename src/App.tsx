@@ -5,7 +5,7 @@ import { EmployeesPage } from './pages/employees/page';
 import { AuthorizationPage } from './pages/authorization/page';
 import { AdminLayout } from './layout/admin-layout';
 import { AcceptanceUsersPage } from './pages/acceptence/page';
-import { ForecastPage } from './pages/forecast/page';
+import { ForecastDiffPage, ForecastPage } from './pages/forecast/page';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { _404Page } from './pages/404/page';
@@ -56,6 +56,14 @@ function App() {
             element={
               <AdminLayout>
                 <ForecastPage />
+              </AdminLayout>
+            }
+          />
+          <Route
+            path="/forecast_diff"
+            element={
+              <AdminLayout>
+                <ForecastDiffPage />
               </AdminLayout>
             }
           />

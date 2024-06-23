@@ -320,9 +320,6 @@ export const ForecastPage = () => {
       x: {
         stacked: true,
       },
-      y: {
-        stacked: true,
-      },
     },
   };
   const labels = numbersOfWeek;
